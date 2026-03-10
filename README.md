@@ -4,7 +4,6 @@
 
 - Google account
 - Firebase account (free tier available)
-- Node.js and npm (optional, only if using Firebase CLI)
 
 ## Setup Instructions
 
@@ -64,22 +63,30 @@
 
 ### 6. Deploy Firestore Security Rules
 
-**Option A: Via Firebase Console** (easiest, no CLI needed)
-
 1. Go to [Firebase Console](https://console.firebase.google.com/)
 2. Select your project
 3. Go to Firestore Database → Rules tab
-4. Copy-paste contents of `firestore.rules` into the editor
-5. Click "Publish"
+4. Replace the default rules with:
+   ```
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       function isAllowedUser() {
+         return request.auth != null && request.auth.token.email == 'YOUR_EMAIL@gmail.com';
+       }
 
-**Option B: Via Firebase CLI**
+       match /users/{userId} {
+         allow read, write: if isAllowedUser() && request.auth.uid == userId;
+       }
 
-```bash
-npm install -g firebase-tools
-firebase login
-firebase use --add  # Select your project
-firebase deploy --only firestore:rules
-```
+       match /{document=**} {
+         allow read, write: if false;
+       }
+     }
+   }
+   ```
+5. Replace `YOUR_EMAIL@gmail.com` with your actual email
+6. Click "Publish"
 
 ### 7. Test Locally
 
