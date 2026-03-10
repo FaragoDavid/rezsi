@@ -91,7 +91,7 @@ async function handleSignOut() {
   }
 }
 
-function initializeApp() {
+function initialize() {
   const signInButton = document.getElementById("google-signin-button");
   const signOutButton = document.getElementById("signout-button");
 
@@ -109,4 +109,4 @@ function initializeApp() {
   });
 }
 
-window.addEventListener("load", initializeApp);
+window.addEventListener("load", initialize);
