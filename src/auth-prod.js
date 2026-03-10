@@ -1,3 +1,4 @@
+// Production Firebase authentication
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import {
   getAuth,
@@ -11,6 +12,7 @@ import {
   doc,
   setDoc,
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { showUserSection, showLoginSection } from "./auth-shared.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDSTU9z5semoU5SxG1VENfUnTuZBYMWZhA",
@@ -28,18 +30,6 @@ const provider = new GoogleAuthProvider();
 
 let currentUser = null;
 
-async function handleGoogleSignIn() {
-  try {
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
-
-    await saveUserToFirestore(user);
-  } catch (error) {
-    console.error("Error during sign-in:", error);
-    alert(`Sign-in failed: ${error.message}`);
-  }
-}
-
 async function saveUserToFirestore(user) {
   try {
     const userRef = doc(db, "users", user.uid);
@@ -49,7 +39,6 @@ async function saveUserToFirestore(user) {
         uid: user.uid,
         displayName: user.displayName,
         email: user.email,
-        photoURL: user.photoURL,
         lastLogin: new Date().toISOString(),
       },
       { merge: true },
@@ -59,25 +48,15 @@ async function saveUserToFirestore(user) {
   }
 }
 
-function showUserSection(user) {
-  const loginSection = document.getElementById("login-section");
-  const userSection = document.getElementById("user-section");
-
-  document.getElementById("user-name").textContent = user.displayName || "User";
-  document.getElementById("user-email").textContent = user.email || "";
-  document.getElementById("user-picture").src =
-    user.photoURL || "https://via.placeholder.com/100";
-
-  loginSection.classList.add("hidden");
-  userSection.classList.remove("hidden");
-}
-
-function showLoginSection() {
-  const loginSection = document.getElementById("login-section");
-  const userSection = document.getElementById("user-section");
-
-  loginSection.classList.remove("hidden");
-  userSection.classList.add("hidden");
+async function handleGoogleSignIn() {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    await saveUserToFirestore(user);
+  } catch (error) {
+    console.error("Error during sign-in:", error);
+    alert(`Sign-in failed: ${error.message}`);
+  }
 }
 
 async function handleSignOut() {
@@ -91,7 +70,9 @@ async function handleSignOut() {
   }
 }
 
-function initialize() {
+export function initialize() {
+  console.log("Initializing Firebase authentication (PRODUCTION)");
+
   const signInButton = document.getElementById("google-signin-button");
   const signOutButton = document.getElementById("signout-button");
 
@@ -109,4 +90,4 @@ function initialize() {
   });
 }
 
-window.addEventListener("load", initialize);
+export { currentUser };

@@ -1,13 +1,14 @@
-# Rezsi - Secure Firebase Auth App
-
-## Prerequisites
-
-- Google account
-- Firebase account (free tier available)
+# Rezsi
 
 ## Setup Instructions
 
-### 1. Create Firebase Project
+### 1. Install Dependencies
+
+```bash
+npm install
+```
+
+### 2. Create Firebase Project
 
 1. Go to [Firebase Console](https://console.firebase.google.com/)
 2. Click "Add project"
@@ -15,7 +16,7 @@
 4. Enable/disable Google Analytics (optional)
 5. Click "Create project"
 
-### 2. Enable Authentication
+### 3. Enable Authentication
 
 1. In Firebase Console, go to "Authentication" in the sidebar
 2. Click "Get started"
@@ -25,7 +26,7 @@
 6. Add your email as project support email
 7. Click "Save"
 
-### 3. Create Firestore Database
+### 4. Create Firestore Database
 
 1. In Firebase Console, go to "Firestore Database"
 2. Click "Create database"
@@ -33,14 +34,14 @@
 4. Select database location (choose closest to your users)
 5. Click "Done"
 
-### 4. Get Firebase Configuration
+### 5. Get Firebase Configuration
 
 1. In Firebase Console, go to Project Settings (gear icon)
 2. Scroll to "Your apps" section
 3. Click the web icon `</>`
 4. Register app with nickname "rezsi-web"
 5. Copy the `firebaseConfig` object
-6. Open `app.js` and replace the placeholder config with your values:
+6. Open `src/auth-prod.js` and replace the placeholder config with your values:
    ```javascript
    const firebaseConfig = {
      apiKey: "YOUR_API_KEY_HERE",
@@ -52,7 +53,7 @@
    };
    ```
 
-### 5. Configure Authorized Domains
+### 6. Configure Authorized Domains
 
 1. In Firebase Console, go to "Authentication" > "Settings" tab
 2. Scroll to "Authorized domains"
@@ -61,12 +62,13 @@
    - `faragodavid.github.io` (for GitHub Pages)
    - Or your custom domain
 
-### 6. Deploy Firestore Security Rules
+### 7. Deploy Firestore Security Rules
 
 1. Go to [Firebase Console](https://console.firebase.google.com/)
 2. Select your project
 3. Go to Firestore Database → Rules tab
 4. Replace the default rules with:
+
    ```
    rules_version = '2';
    service cloud.firestore {
@@ -85,148 +87,76 @@
      }
    }
    ```
+
 5. Replace `YOUR_EMAIL@gmail.com` with your actual email
 6. Click "Publish"
 
-### 7. Test Locally
+## Development
+
+### Run Development Server
 
 ```bash
-npx http-server -p 8000
+npm run dev
 ```
 
-Open `http://localhost:8000` and test sign-in.
+Opens development server at `http://localhost:8000` with:
 
-### 8. Deploy to GitHub Pages
+- **Mock authentication** (auto sign-in as "Local Dev User")
+- **Hot module reload** for instant updates
+- No Firebase authentication required
+
+### Build for Production
 
 ```bash
-git add .
-git commit -m "Add Firebase authentication"
-git push origin main
+npm run build
 ```
 
-Enable GitHub Pages in repository settings → Pages → branch `main` → folder `/root` → Save
+Builds optimized files to `docs/` directory with:
 
-Your app will be available at: `https://faragodavid.github.io/rezsi/`
+- **Real Firebase authentication**
+- **Minified assets**
+- **Production-ready code**
 
-## Project Structure
+### Preview Production Build
 
+```bash
+npm run preview
 ```
-rezsi/
-├── index.html         # Main HTML file
-├── styles.css         # UI styling
-├── app.js             # Firebase auth (ES modules)
-├── firestore.rules    # Security rules
-├── firebase.json      # Firebase config
-└── README.md          # This file
-```
+
+Preview the production build locally before deploying.
+
+## Deployment to GitHub Pages
+
+The app deploys automatically via GitHub Actions when you push to `main`.
+
+### Initial Setup
+
+1. Go to repository Settings → Pages
+2. Source: **GitHub Actions** (not "Deploy from a branch")
+3. Save
+
+### Deploy
+
+GitHub Actions will:
+
+1. Install dependencies
+2. Build the app (`npm run build`)
+3. Deploy to GitHub Pages automatically
+
+App available at: `https://faragodavid.github.io/rezsi/`
 
 ## How It Works
 
-### Secure Authentication Flow
+### Development Mode (`npm run dev`)
 
-1. User clicks "Sign in with Google"
-2. Firebase opens OAuth popup
-3. Firebase validates with Google servers
-4. Firebase issues secure session token
-5. User data saved to Firestore (authenticated)
-6. Auth state persisted automatically
+- Loads `auth-dev.js` with mock authentication
+- Auto-signs in as "Local Dev User"
+- No Firebase required
+- Hot module reload for fast development
 
-### Why This is Secure
+### Production Mode (`npm run build`)
 
-- ✅ **Server-side validation**: JWT verified by Firebase
-- ✅ **Security rules**: Database enforces access control
-- ✅ **Cannot be bypassed**: localStorage manipulation won't grant Firestore access
-- ✅ **Token management**: Automatic expiration & refresh
-- ✅ **Audit trail**: Firebase logs all auth events
-
-### Security Rules Explained
-
-From `firestore.rules`:
-
-```javascript
-// Users can only access their own data
-match /users/{userId} {
-  allow read, write: if request.auth.uid == userId;
-}
-
-// Private collections per user
-match /private/{userId}/{document=**} {
-  allow read, write: if request.auth.uid == userId;
-}
-```
-
-These rules are enforced by Firebase servers - impossible to bypass from client.
-
-## Adding Protected Data
-
-Example - saving user-specific notes:
-
-```javascript
-import {
-  collection,
-  addDoc,
-  getDocs,
-  query,
-  where,
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-// Save note - requires authentication
-async function saveNote(noteText) {
-  const notesRef = collection(db, `private/${currentUser.uid}/notes`);
-  await addDoc(notesRef, {
-    text: noteText,
-    createdAt: new Date(),
-  });
-}
-
-// Get user's notes - security rules ensure only owner can read
-async function getNotes() {
-  const notesRef = collection(db, `private/${currentUser.uid}/notes`);
-  const snapshot = await getDocs(notesRef);
-  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-}
-```
-
-Even if someone manipulates the frontend, Firestore rules block unauthorized access.
-
-## Cost
-
-Firebase Spark (free):
-
-- **Authentication**: Unlimited
-- **Firestore**: 50K reads/day, 20K writes/day, 1GB storage
-- **No credit card required**
-
-## Troubleshooting
-
-### Sign-in popup blocked
-
-Allow popups in browser settings or use redirect flow
-
-### "Permission denied" in Firestore
-
-- Check `firestore.rules` syntax
-- Deploy: `firebase deploy --only firestore:rules`
-- View in Firebase Console → Firestore → Rules
-
-### "auth/configuration-not-found"
-
-- Verify `firebaseConfig` in `app.js`
-- Check Authentication is enabled in Firebase Console
-
-### Works locally but not on deployed site
-
-- Add domain to Firebase authorized domains
-- Verify Firebase config is correct
-- Check browser console
-
-## Next Steps
-
-- Update security rules for your data model
-- Add actual app features using Firestore
-- Set up indexes for complex queries
-- Configure custom domain (optional)
-
-## License
-
-MIT
+- Loads `auth-prod.js` with real Firebase authentication
+- Requires Google sign-in
+- Protected by Firestore security rules
+- Optimized and minified assets
