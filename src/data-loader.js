@@ -16,7 +16,8 @@ function parseCSV(csv) {
 }
 
 export async function fetchUtilityData() {
-  const response = await fetch("/data.csv");
+  const basePath = import.meta.env.BASE_URL || "/";
+  const response = await fetch(`${basePath}data.csv`);
   if (!response.ok) {
     throw new Error("Failed to load data");
   }
