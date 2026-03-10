@@ -103,6 +103,23 @@ p {
   transform: translateY(0);
 }
 
+.google-btn {
+  background: white;
+  color: #444;
+  border: 1px solid #dadce0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  width: 100%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.google-btn:hover {
+  background: #f8f9fa;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
 @media (max-width: 600px) {
   .card {
     padding: 30px 20px;
