@@ -1,0 +1,24 @@
+{
+  "app": {
+    "title": "Rezsi"
+  },
+  "login": {
+    "heading": "Rezsi",
+
+    "signInButton": "Bejelentkezés Google-lal"
+  },
+  "dashboard": {
+    "heading": "Havi Fogyasztás",
+    "loadingMessage": "Adatok betöltése...",
+    "noDataMessage": "Nincs elérhető adat",
+    "errorMessage": "Hiba az adatok betöltése során. Kérjük, próbáld újra."
+  },
+  "table": {
+    "headers": {
+      "date": "Dátum",
+      "gas": "Gáz",
+      "electricity": "Villany",
+      "water": "Víz"
+    }
+  }
+}

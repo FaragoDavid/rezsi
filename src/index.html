@@ -11,7 +11,6 @@
       <div id="login-section" class="section">
         <div class="card">
           <h1>Welcome to Rezsi</h1>
-          <p>Please sign in with your Google account to continue</p>
           <button id="google-signin-button" class="btn google-btn">
             <svg
               width="18"
@@ -43,29 +42,20 @@
 
       <div id="user-section" class="section hidden">
         <div class="card">
-          <div class="header">
-            <div>
-              <h1>Utility Dashboard</h1>
-              <p id="user-email" class="user-email"></p>
-            </div>
-            <button id="signout-button" class="btn">Sign Out</button>
-          </div>
-
           <div class="data-section">
             <h2>Monthly Utility Usage</h2>
             <table id="utility-table">
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Gas</th>
-                  <th>Electricity</th>
-                  <th>Water</th>
-                  <th>Total</th>
+                  <th id="date-header">Date</th>
+                  <th id="gas-header">Gas</th>
+                  <th id="electricity-header">Electricity</th>
+                  <th id="water-header">Water</th>
                 </tr>
               </thead>
               <tbody id="utility-data">
                 <tr>
-                  <td colspan="5">Loading data...</td>
+                  <td colspan="4">Loading data...</td>
                 </tr>
               </tbody>
             </table>

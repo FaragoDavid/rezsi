@@ -25,10 +25,8 @@ export function initialize() {
   console.log("Initializing mock authentication (DEVELOPMENT)");
 
   const signInButton = document.getElementById("google-signin-button");
-  const signOutButton = document.getElementById("signout-button");
 
   signInButton.addEventListener("click", handleMockSignIn);
-  signOutButton.addEventListener("click", handleMockSignOut);
 
   // Auto sign-in for convenience in development
   handleMockSignIn();

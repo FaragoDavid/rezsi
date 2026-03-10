@@ -74,10 +74,8 @@ export function initialize() {
   console.log("Initializing Firebase authentication (PRODUCTION)");
 
   const signInButton = document.getElementById("google-signin-button");
-  const signOutButton = document.getElementById("signout-button");
 
   signInButton.addEventListener("click", handleGoogleSignIn);
-  signOutButton.addEventListener("click", handleSignOut);
 
   onAuthStateChanged(auth, (user) => {
     if (user) {

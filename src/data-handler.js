@@ -1,10 +1,20 @@
-// Utility data management
 import { fetchUtilityData } from "./data-loader.js";
 import { format } from "date-fns";
+import { getStrings } from "./strings-loader.js";
+
+const UNITS = {
+  gas: "m3",
+  electricity: "kWh",
+  water: "m3",
+};
+
+const DATE_FORMAT = "yyyy MMM";
 
 function buildUtilityTable(utilities) {
+  const strings = getStrings();
+
   if (!utilities || utilities.length === 0) {
-    return '<tr><td colspan="5">No data available</td></tr>';
+    return `<tr><td colspan="4">${strings.dashboard.noDataMessage}</td></tr>`;
   }
 
   const sortedData = [...utilities].sort((a, b) => {
@@ -14,14 +24,13 @@ function buildUtilityTable(utilities) {
 
   return sortedData
     .map((record) => {
-      const total = record.gas + record.electricity + record.water;
       const date = new Date(record.year, record.month - 1);
       return `
         <tr>
-          <td>${format(date, "yyyy MMM")}</td>
-          <td>${record.gas} m3</td>
-          <td>${record.electricity} kWh</td>
-          <td>${record.water} m3</td>
+          <td>${format(date, DATE_FORMAT)}</td>
+          <td>${record.gas} ${UNITS.gas}</td>
+          <td>${record.electricity} ${UNITS.electricity}</td>
+          <td>${record.water} ${UNITS.water}</td>
         </tr>
       `;
     })
@@ -29,6 +38,7 @@ function buildUtilityTable(utilities) {
 }
 
 export async function loadUtilityData() {
+  const strings = getStrings();
   const tbody = document.getElementById("utility-data");
 
   try {
@@ -36,7 +46,6 @@ export async function loadUtilityData() {
     tbody.innerHTML = buildUtilityTable(utilities);
   } catch (error) {
     console.error("Error loading utility data:", error);
-    tbody.innerHTML =
-      '<tr><td colspan="5">Error loading data. Please try again.</td></tr>';
+    tbody.innerHTML = `<tr><td colspan="4">${strings.dashboard.errorMessage}</td></tr>`;
   }
 }

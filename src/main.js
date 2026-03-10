@@ -1,7 +1,11 @@
 // Main entry point - loads appropriate auth module based on environment
 import "./styles.css";
+import { initializeUI } from "./ui-init.js";
 
 async function initializeApp() {
+  // Initialize UI strings first
+  await initializeUI();
+  
   let authModule;
 
   // Use development mode for Vite dev server, production for build
