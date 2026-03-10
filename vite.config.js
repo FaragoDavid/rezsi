@@ -1,8 +1,9 @@
 import { defineConfig } from "vite";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   root: "src",
-  base: "/rezsi/",
+  base: mode === "production" ? "/rezsi/" : "/",
+  publicDir: "../public",
   build: {
     outDir: "../docs",
     emptyOutDir: true,
@@ -10,4 +11,4 @@ export default defineConfig({
   server: {
     port: 8000,
   },
-});
+}));

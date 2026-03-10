@@ -112,6 +112,80 @@ p {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
+/* Utility Dashboard */
+.container {
+  max-width: 900px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+  text-align: left;
+}
+
+.header h1 {
+  margin-bottom: 4px;
+}
+
+.user-email {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 0;
+}
+
+.data-section {
+  margin-top: 24px;
+}
+
+.data-section h2 {
+  font-size: 20px;
+  color: #333;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+#utility-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+#utility-table thead {
+  background: #f8f9fa;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+#utility-table th {
+  padding: 12px;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+#utility-table td {
+  padding: 12px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #666;
+  font-size: 14px;
+}
+
+#utility-table tbody tr:hover {
+  background: #fafafa;
+}
+
+#utility-table th:nth-child(2),
+#utility-table th:nth-child(3),
+#utility-table th:nth-child(4),
+#utility-table th:nth-child(5),
+#utility-table td:nth-child(2),
+#utility-table td:nth-child(3),
+#utility-table td:nth-child(4),
+#utility-table td:nth-child(5) {
+  text-align: right;
+}
+
 @media (max-width: 600px) {
   .card {
     padding: 30px 20px;
@@ -123,5 +197,19 @@ p {
 
   p {
     font-size: 14px;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  #utility-table {
+    font-size: 12px;
+  }
+
+  #utility-table th,
+  #utility-table td {
+    padding: 8px 4px;
   }
 }
