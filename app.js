@@ -1,5 +1,14 @@
 let currentUser = null;
 
+const firebaseConfig = {
+  apiKey: "AIzaSyDSTU9z5semoU5SxG1VENfUnTuZBYMWZhA",
+  authDomain: "rezis-25e67.firebaseapp.com",
+  projectId: "rezis-25e67",
+  storageBucket: "rezis-25e67.firebasestorage.app",
+  messagingSenderId: "634921157857",
+  appId: "1:634921157857:web:8fde4968550640406ea3a0"
+};
+
 function handleCredentialResponse(response) {
   const responsePayload = decodeJwtResponse(response.credential);
 
