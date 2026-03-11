@@ -3,9 +3,25 @@ import { Chart, LineController, LineElement, PointElement, LinearScale, Category
 Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend);
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const COLORS = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b', '#fa709a', '#fee140', '#30cfd0'];
 
 let chartInstance = null;
+
+function getBluePurpleColor(index, total) {
+  const colors = [
+    'rgba(200, 180, 220, 0.8)',
+    'rgba(170, 150, 210, 0.85)',
+    'rgba(140, 120, 200, 0.9)',
+    'rgba(110, 90, 180, 0.95)',
+    'rgba(90, 70, 160, 1)',
+    'rgba(70, 50, 140, 1)',
+    'rgba(50, 30, 120, 1)',
+  ];
+
+  if (total === 1) return colors[colors.length - 1];
+
+  const colorIndex = Math.floor((index * (colors.length - 1)) / (total - 1));
+  return colors[Math.min(colorIndex, colors.length - 1)];
+}
 
 export function createGasChart(utilities) {
   const canvas = document.getElementById('gas-chart');
@@ -21,17 +37,20 @@ export function createGasChart(utilities) {
   });
 
   // Create datasets for each year
-  const datasets = Object.keys(dataByYear)
-    .sort((a, b) => a - b)
-    .map((year, index) => ({
+  const years = Object.keys(dataByYear).sort((a, b) => b - a);
+  const datasets = years.map((year, index) => {
+    const color = getBluePurpleColor(years.length - 1 - index, years.length);
+    return {
       label: year,
       data: dataByYear[year],
-      borderColor: COLORS[index % COLORS.length],
-      backgroundColor: COLORS[index % COLORS.length],
+      borderColor: color,
+      backgroundColor: color,
       tension: 0.3,
       pointRadius: 4,
       pointHoverRadius: 6,
-    }));
+      order: index,
+    };
+  });
 
   // Destroy existing chart if it exists
   if (chartInstance) {
