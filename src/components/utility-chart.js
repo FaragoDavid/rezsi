@@ -183,6 +183,8 @@ function createSvgWithGroup(width, height) {
 }
 
 export function createUtilityChart(utilities, utilityType = 'gas') {
+  utilityData = utilities;
+
   const data = utilities
     .filter((d) => d[utilityType] != null && !isNaN(d[utilityType]) && d.year && d.month)
     .sort((a, b) => a.year - b.year || a.month - b.month);
@@ -223,8 +225,6 @@ export function initializeUtilityToggle() {
       button.classList.add('active');
 
       if (utilityData) {
-        utilityData = utilities;
-
         createUtilityChart(utilityData, button.dataset.utility);
       }
     });
