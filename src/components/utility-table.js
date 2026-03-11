@@ -1,7 +1,6 @@
-import { fetchUtilityData } from './data-loader.js';
 import { format } from 'date-fns';
-import { getStrings } from './strings-loader.js';
-import { getColorForValue, calculateRange } from './bg-gradient-calculator.js';
+import { getStrings } from '../i18n/strings-loader.js';
+import { getColorForValue, calculateRange } from '../utils/bg-gradient-calculator.js';
 
 const UNITS = {
   water: 'm3',
@@ -12,40 +11,14 @@ const UNITS = {
 
 const DATE_FORMAT = 'yyyy MMM';
 
-function buildUtilityTable(utilities) {
+export function buildUtilityTable(increments) {
   const strings = getStrings();
 
-  if (!utilities || utilities.length === 0) {
+  if (!increments || increments.length === 0) {
     return `<tr><td colspan="5">${strings.dashboard.noDataMessage}</td></tr>`;
   }
 
-  const chronological = [...utilities].sort((a, b) => {
-    if (a.year !== b.year) return a.year - b.year;
-    return a.month - b.month;
-  });
-
-  const increments = chronological.map((record, index) => {
-    if (index === 0) {
-      return {
-        ...record,
-        water: record.water,
-        gas: record.gas,
-        electricity: record.electricity,
-        electricityMain: record.electricity_main,
-      };
-    }
-
-    const previous = chronological[index - 1];
-    return {
-      ...record,
-      water: record.water - previous.water,
-      gas: record.gas - previous.gas,
-      electricity: record.electricity - previous.electricity,
-      electricityMain: record.electricity_main - previous.electricity_main,
-    };
-  });
-
-  const sortedData = increments.reverse();
+  const sortedData = [...increments].reverse();
   const { min: waterMin, max: waterMax } = calculateRange(sortedData.map((r) => r.water));
   const { min: gasMin, max: gasMax } = calculateRange(sortedData.map((r) => r.gas));
   const { min: electricityMin, max: electricityMax } = calculateRange(sortedData.map((r) => r.electricity));
@@ -74,17 +47,4 @@ function buildUtilityTable(utilities) {
       `;
     })
     .join('');
-}
-
-export async function loadUtilityData() {
-  const strings = getStrings();
-  const tbody = document.getElementById('utility-data');
-
-  try {
-    const utilities = await fetchUtilityData();
-    tbody.innerHTML = buildUtilityTable(utilities);
-  } catch (error) {
-    console.error('Error loading utility data:', error);
-    tbody.innerHTML = `<tr><td colspan="5">${strings.dashboard.errorMessage}</td></tr>`;
-  }
 }

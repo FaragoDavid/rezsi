@@ -112,7 +112,14 @@ p {
 
 /* Utility Dashboard */
 .container {
-  max-width: 900px;
+  max-width: 1400px;
+}
+
+.cards-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
 }
 
 .header {
@@ -138,6 +145,12 @@ p {
   color: #333;
   margin-bottom: 16px;
   text-align: left;
+}
+
+.chart-container {
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
 }
 
 #utility-table {
@@ -194,6 +207,12 @@ p {
   text-align: right;
 }
 
+@media (max-width: 1200px) {
+  .cards-container {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 600px) {
   .card {
     padding: 15px 10px;
@@ -210,6 +229,10 @@ p {
   .header {
     flex-direction: column;
     gap: 16px;
+  }
+
+  .cards-container {
+    grid-template-columns: 1fr;
   }
 
   #utility-table {
