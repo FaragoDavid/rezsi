@@ -1,4 +1,4 @@
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+import { strings } from '../i18n/strings.js';
 
 const CHART_MARGIN = 0;
 const VALUE_SCALE_MIN = 0.15;
@@ -16,7 +16,6 @@ const HOVER_POINT_RADIUS = 5;
 const HOVER_STROKE_WIDTH = 2;
 const TOOLTIP_X_OFFSET = 15;
 const TOOLTIP_Y_OFFSET = -10;
-const DATA_POINT_RADIUS = 3;
 const DATA_POINT_HOVER_AREA = 8;
 
 let utilityData = null;
@@ -141,7 +140,7 @@ export function createUtilityChart(utilities, utilityType = 'gas') {
       .attr('font-size', `${MONTH_LABEL_FONT_SIZE}px`)
       .attr('fill', '#666')
       .attr('text-anchor', 'middle')
-      .text(MONTHS[month]);
+      .text(strings.months[month]);
   }
 
   const dataPoints = data
@@ -217,7 +216,9 @@ export function createUtilityChart(utilities, utilityType = 'gas') {
         visiblePoint.attr('r', HOVER_POINT_RADIUS).attr('stroke-width', HOVER_STROKE_WIDTH);
         tooltip
           .style('opacity', 1)
-          .html(`<strong>${MONTHS[d.month - 1]} ${d.year}</strong><br>${d.value} ${config.label.match(/\(([^)]+)\)/)?.[1] || ''}`);
+          .html(
+            `<strong>${strings.months[d.month - 1]} ${d.year}</strong><br>${d.value.toFixed(field === 'water' ? 2 : 0)} ${config.label.match(/\(([^)]+)\)/)?.[1] || ''}`,
+          );
       })
       .on('mousemove', function (event) {
         tooltip

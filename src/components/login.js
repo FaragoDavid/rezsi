@@ -1,6 +1,7 @@
 import { loadUtilityData } from '../data/index.js';
 import { buildUtilityTable } from './utility-table.js';
 import { createUtilityChart, initializeUtilityToggle } from './utility-chart.js';
+import { createCalendarHeatmap, initializeHeatmapToggle } from './calendar-heatmap.js';
 import { strings } from '../i18n/strings.js';
 
 export function showUserSection() {
@@ -20,6 +21,8 @@ async function renderUtilityData() {
     const increments = await loadUtilityData();
     tbody.innerHTML = buildUtilityTable(increments);
     createUtilityChart(increments);
+    createCalendarHeatmap(increments);
+    initializeHeatmapToggle();
     initializeUtilityToggle();
   } catch (error) {
     console.error('Error loading utility data:', error);

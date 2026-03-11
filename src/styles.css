@@ -122,6 +122,10 @@ p {
   align-items: start;
 }
 
+.calendar-heatmap-card {
+  grid-column: 1 / -1;
+}
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -189,6 +193,15 @@ p {
   position: relative;
   background: white;
   border-radius: 8px;
+}
+
+#calendar-heatmap {
+  position: relative;
+  background: white;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #utility-table {

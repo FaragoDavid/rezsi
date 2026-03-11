@@ -1,4 +1,3 @@
-import { format } from 'date-fns';
 import { strings } from '../i18n/strings.js';
 import { getColorForValue, calculateRange } from '../utils/bg-gradient-calculator.js';
 
@@ -8,8 +7,6 @@ const UNITS = {
   electricity: 'kWh',
   electricityMain: 'kWh',
 };
-
-const DATE_FORMAT = 'yyyy MMM';
 
 export function buildUtilityTable(increments) {
   if (!increments || increments.length === 0) {
@@ -24,7 +21,7 @@ export function buildUtilityTable(increments) {
 
   return sortedData
     .map(({ year, month, water, gas, electricity, electricityMain }, index) => {
-      const date = new Date(year, month - 1);
+      const dateStr = `${year} ${strings.months[month - 1]}`;
       const isYearDivider = index > 0 && year !== sortedData[index - 1].year;
       const waterStyle = getColorForValue(water, waterMin, waterMax);
       const gasStyle = getColorForValue(gas, gasMin, gasMax);
@@ -36,7 +33,7 @@ export function buildUtilityTable(increments) {
       return `
         ${dividerRow}
         <tr>
-          <td>${format(date, DATE_FORMAT)}</td>
+          <td>${dateStr}</td>
           <td style="${waterStyle}">${isNaN(water) ? '' : `${water.toFixed(2)} ${UNITS.water}`}</td>
           <td style="${gasStyle}">${isNaN(gas) ? '' : `${gas.toFixed(0)} ${UNITS.gas}`}</td>
           <td style="${electricityStyle}">${isNaN(electricity) ? '' : `${electricity.toFixed(0)} ${UNITS.electricity}`}</td>

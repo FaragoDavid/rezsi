@@ -27,4 +27,5 @@ export const strings = {
     water: 'Víz',
     electricity: 'Villany',
   },
+  months: ['Jan', 'Feb', 'Már', 'Ápr', 'Máj', 'Jún', 'Júl', 'Aug', 'Szep', 'Okt', 'Nov', 'Dec'],
 };
