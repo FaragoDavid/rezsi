@@ -1,26 +1,30 @@
-import { Chart, LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend } from 'chart.js';
+import { Chart, RadarController, RadialLinearScale, PointElement, LineElement, Tooltip, Legend, Filler } from 'chart.js';
 
-Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend);
+Chart.register(RadarController, RadialLinearScale, PointElement, LineElement, Tooltip, Legend, Filler);
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 let chartInstance = null;
 
-function getBluePurpleColor(index, total) {
+function getBluePurpleColor(index, total, alpha = 1) {
   const colors = [
-    'rgba(200, 180, 220, 0.8)',
-    'rgba(170, 150, 210, 0.85)',
-    'rgba(140, 120, 200, 0.9)',
-    'rgba(110, 90, 180, 0.95)',
-    'rgba(90, 70, 160, 1)',
-    'rgba(70, 50, 140, 1)',
-    'rgba(50, 30, 120, 1)',
+    [200, 180, 220],
+    [170, 150, 210],
+    [140, 120, 200],
+    [110, 90, 180],
+    [90, 70, 160],
+    [70, 50, 140],
+    [50, 30, 120],
   ];
 
-  if (total === 1) return colors[colors.length - 1];
+  if (total === 1) {
+    const color = colors[colors.length - 1];
+    return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`;
+  }
 
   const colorIndex = Math.floor((index * (colors.length - 1)) / (total - 1));
-  return colors[Math.min(colorIndex, colors.length - 1)];
+  const color = colors[Math.min(colorIndex, colors.length - 1)];
+  return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`;
 }
 
 export function createGasChart(utilities) {
@@ -39,15 +43,20 @@ export function createGasChart(utilities) {
   // Create datasets for each year
   const years = Object.keys(dataByYear).sort((a, b) => b - a);
   const datasets = years.map((year, index) => {
-    const color = getBluePurpleColor(years.length - 1 - index, years.length);
+    const colorIndex = years.length - 1 - index;
     return {
       label: year,
       data: dataByYear[year],
-      borderColor: color,
-      backgroundColor: color,
-      tension: 0.3,
-      pointRadius: 4,
-      pointHoverRadius: 6,
+      borderColor: getBluePurpleColor(colorIndex, years.length, 1),
+      backgroundColor: 'transparent',
+      pointBackgroundColor: getBluePurpleColor(colorIndex, years.length, 1),
+      pointBorderColor: '#fff',
+      pointHoverBackgroundColor: '#fff',
+      pointHoverBorderColor: getBluePurpleColor(colorIndex, years.length, 1),
+      borderWidth: 2,
+      pointRadius: 3,
+      pointHoverRadius: 5,
+      fill: false,
       order: index,
     };
   });
@@ -59,7 +68,7 @@ export function createGasChart(utilities) {
 
   // Create new chart
   chartInstance = new Chart(canvas, {
-    type: 'line',
+    type: 'radar',
     data: {
       labels: MONTHS,
       datasets: datasets,
@@ -78,17 +87,14 @@ export function createGasChart(utilities) {
         },
       },
       scales: {
-        y: {
+        r: {
           beginAtZero: true,
           title: {
             display: true,
             text: 'Gas (m³)',
           },
-        },
-        x: {
-          title: {
-            display: true,
-            text: 'Month',
+          ticks: {
+            stepSize: 50,
           },
         },
       },
