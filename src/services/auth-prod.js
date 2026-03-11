@@ -47,7 +47,17 @@ async function handleGoogleSignIn() {
   try {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
-    await saveUserToFirestore(user);
+    
+    try {
+      await saveUserToFirestore(user);
+    } catch (error) {
+      if (error.code === 'permission-denied' || error.message.includes('permission')) {
+        await firebaseSignOut(auth);
+        alert('Access denied. You do not have permission to use this application.');
+        return;
+      }
+      throw error;
+    }
   } catch (error) {
     console.error('Error during sign-in:', error);
     alert(`Sign-in failed: ${error.message}`);
