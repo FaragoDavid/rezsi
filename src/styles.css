@@ -30,7 +30,7 @@ body {
 .card {
   background: white;
   border-radius: 16px;
-  padding: 40px;
+  padding: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   text-align: center;
 }
@@ -133,10 +133,6 @@ p {
   margin-bottom: 0;
 }
 
-.data-section {
-  margin-top: 24px;
-}
-
 .data-section h2 {
   font-size: 20px;
   color: #333;
@@ -161,6 +157,7 @@ p {
   font-weight: 600;
   color: #333;
   font-size: 14px;
+  text-align: center;
 }
 
 #utility-table td {
@@ -190,10 +187,6 @@ p {
   margin: 0;
 }
 
-#utility-table th:nth-child(2),
-#utility-table th:nth-child(3),
-#utility-table th:nth-child(4),
-#utility-table th:nth-child(5),
 #utility-table td:nth-child(2),
 #utility-table td:nth-child(3),
 #utility-table td:nth-child(4),
@@ -203,7 +196,7 @@ p {
 
 @media (max-width: 600px) {
   .card {
-    padding: 30px 20px;
+    padding: 15px 10px;
   }
 
   h1 {
