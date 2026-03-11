@@ -1,4 +1,4 @@
-year,month,water,gas,electricity,electricity (main)
+year,month,water,gas,electricity,electricity_main
 2017,11,1,10,0,
 2017,12,2,72,113,
 2018,1,,136,,
