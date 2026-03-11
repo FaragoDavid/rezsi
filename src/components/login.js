@@ -1,5 +1,7 @@
-// Login component - UI state management
-import { loadUtilityData } from '../data/data-handler.js';
+import { loadUtilityData } from '../data/index.js';
+import { buildUtilityTable } from './utility-table.js';
+import { createGasChart } from './gas-chart.js';
+import { strings } from '../i18n/strings.js';
 
 export function showUserSection() {
   const loginSection = document.getElementById('login-section');
@@ -8,8 +10,20 @@ export function showUserSection() {
   loginSection.classList.add('hidden');
   userSection.classList.remove('hidden');
 
-  // Load utility data
-  loadUtilityData();
+  renderUtilityData();
+}
+
+async function renderUtilityData() {
+  const tbody = document.getElementById('utility-data');
+
+  try {
+    const increments = await loadUtilityData();
+    tbody.innerHTML = buildUtilityTable(increments);
+    createGasChart(increments);
+  } catch (error) {
+    console.error('Error loading utility data:', error);
+    tbody.innerHTML = `<tr><td colspan="5">${strings.dashboard.errorMessage}</td></tr>`;
+  }
 }
 
 export function showLoginSection() {
