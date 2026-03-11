@@ -3,8 +3,8 @@ import './styles.css';
 import { initializeUI } from './ui/ui-init.js';
 
 async function initializeApp() {
-  // Initialize UI strings first
-  await initializeUI();
+  // Initialize UI templates and strings
+  initializeUI();
 
   let authModule;
 

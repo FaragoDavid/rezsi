@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { getStrings } from '../i18n/strings-loader.js';
+import { strings } from '../i18n/strings.js';
 import { getColorForValue, calculateRange } from '../utils/bg-gradient-calculator.js';
 
 const UNITS = {
@@ -12,8 +12,6 @@ const UNITS = {
 const DATE_FORMAT = 'yyyy MMM';
 
 export function buildUtilityTable(increments) {
-  const strings = getStrings();
-
   if (!increments || increments.length === 0) {
     return `<tr><td colspan="5">${strings.dashboard.noDataMessage}</td></tr>`;
   }

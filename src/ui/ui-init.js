@@ -1,10 +1,8 @@
 // UI string initialization
-import { loadStrings } from '../i18n/strings-loader.js';
+import { strings } from '../i18n/strings.js';
 import { renderApp, renderDashboard } from './app-templates.js';
 
-export async function initializeUI() {
-  const strings = await loadStrings();
-
+export function initializeUI() {
   // Render app templates (login + dashboard structure)
   renderApp();
 

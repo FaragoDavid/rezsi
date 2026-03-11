@@ -1,4 +1,3 @@
-// Development mock authentication
 import { showUserSection, showLoginSection } from '../components/login.js';
 
 let currentUser = null;

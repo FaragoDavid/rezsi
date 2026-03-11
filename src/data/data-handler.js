@@ -1,5 +1,5 @@
 import { fetchUtilityData } from './data-loader.js';
-import { getStrings } from '../i18n/strings-loader.js';
+import { strings } from '../i18n/strings.js';
 import { buildUtilityTable } from '../components/utility-table.js';
 import { createGasChart } from '../components/gas-chart.js';
 
@@ -32,7 +32,6 @@ function calculateIncrements(utilities) {
 }
 
 export async function loadUtilityData() {
-  const strings = getStrings();
   const tbody = document.getElementById('utility-data');
 
   try {
