@@ -55,14 +55,16 @@ function buildUtilityTable(utilities) {
     .map(({ year, month, water, gas, electricity, electricityMain }, index) => {
       const date = new Date(year, month - 1);
       const isYearDivider = index > 0 && year !== sortedData[index - 1].year;
-      const rowClass = isYearDivider ? ' class="year-divider"' : '';
       const waterStyle = getColorForValue(water, waterMin, waterMax);
       const gasStyle = getColorForValue(gas, gasMin, gasMax);
       const electricityStyle = getColorForValue(electricity, electricityMin, electricityMax);
       const electricityMainStyle = getColorForValue(electricityMain, electricityMainMin, electricityMainMax);
 
+      const dividerRow = isYearDivider ? '<tr class="year-divider"><td colspan="5"><div class="year-divider-line"></div></td></tr>' : '';
+
       return `
-        <tr${rowClass}>
+        ${dividerRow}
+        <tr>
           <td>${format(date, DATE_FORMAT)}</td>
           <td style="${waterStyle}">${isNaN(water) ? '' : `${water.toFixed(2)} ${UNITS.water}`}</td>
           <td style="${gasStyle}">${isNaN(gas) ? '' : `${gas.toFixed(0)} ${UNITS.gas}`}</td>
