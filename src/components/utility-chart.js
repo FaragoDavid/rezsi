@@ -67,7 +67,7 @@ export function createUtilityChart(utilities, utilityType = 'gas') {
       pointHoverBackgroundColor: '#fff',
       pointHoverBorderColor: getBluePurpleColor(colorIndex, years.length, 1),
       borderWidth: 2,
-      pointRadius: 3,
+      pointRadius: 0,
       pointHoverRadius: 5,
       fill: false,
       order: index,
