@@ -27,5 +27,10 @@ export const strings = {
     water: 'Víz',
     electricity: 'Villany',
   },
+  units: {
+    gas: 'm³',
+    water: 'm³',
+    electricity: 'kWh',
+  },
   months: ['Jan', 'Feb', 'Már', 'Ápr', 'Máj', 'Jún', 'Júl', 'Aug', 'Szep', 'Okt', 'Nov', 'Dec'],
 };

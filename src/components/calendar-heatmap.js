@@ -10,12 +10,6 @@ const TOOLTIP_Y_OFFSET = -10;
 let heatmapData = null;
 let currentHeatmapUtility = 'gas';
 
-const UTILITY_CONFIG = {
-  gas: { label: 'Gas (m³)', field: 'gas' },
-  water: { label: 'Water (m³)', field: 'water' },
-  electricity: { label: 'Electricity (kWh)', field: 'electricity' },
-};
-
 function getColorScale(value, maxValue) {
   if (!value || value === 0) return '#f0f0f0';
   const intensity = value / maxValue;
@@ -32,16 +26,13 @@ export function createCalendarHeatmap(utilities, utilityType = 'gas') {
   heatmapData = utilities;
   currentHeatmapUtility = utilityType;
 
-  const config = UTILITY_CONFIG[utilityType];
-  const field = config.field;
-
   container.innerHTML = '';
 
   const data = utilities
     .map((d) => ({
       year: d.year,
       month: d.month,
-      value: d[field],
+      value: d[utilityType],
     }))
     .filter((d) => d.value != null && !isNaN(d.value) && d.year && d.month);
 
@@ -125,7 +116,7 @@ export function createCalendarHeatmap(utilities, utilityType = 'gas') {
             d3.select(this).attr('stroke', '#333').attr('stroke-width', 2);
             tooltip
               .style('opacity', 1)
-              .html(`<strong>${strings.months[monthIdx]} ${year}</strong><br>${value} ${config.label.match(/\(([^)]+)\)/)?.[1] || ''}`);
+              .html(`<strong>${strings.months[monthIdx]} ${year}</strong><br>${value} ${strings.units[utilityType]}`);
           })
           .on('mousemove', function (event) {
             tooltip

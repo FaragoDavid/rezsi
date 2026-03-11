@@ -3,7 +3,7 @@ import { strings } from '../i18n/strings.js';
 const CHART_MARGIN = 0;
 const VALUE_SCALE_MIN = 0.15;
 const VALUE_SCALE_MAX = 0.85;
-const VALUE_CIRCLES = 5;
+const VALUE_CIRCLE_COUNT = 5;
 const MONTHS_PER_YEAR = 12;
 const MONTH_LABEL_OFFSET = 20;
 const MONTH_LABEL_Y_OFFSET = 4;
@@ -19,13 +19,6 @@ const TOOLTIP_Y_OFFSET = -10;
 const DATA_POINT_HOVER_AREA = 8;
 
 let utilityData = null;
-let currentUtilityType = 'gas';
-
-const UTILITY_CONFIG = {
-  gas: { label: 'Gas (m³)', field: 'gas' },
-  water: { label: 'Water (m³)', field: 'water' },
-  electricity: { label: 'Electricity (kWh)', field: 'electricity' },
-};
 
 function getBluePurpleColor(t) {
   const start = { r: 200, g: 180, b: 220 };
@@ -36,71 +29,19 @@ function getBluePurpleColor(t) {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-export function createUtilityChart(utilities, utilityType = 'gas') {
-  const container = document.getElementById('utility-chart');
-  if (!container) return;
-
-  utilityData = utilities;
-  currentUtilityType = utilityType;
-
-  const config = UTILITY_CONFIG[utilityType];
-  const field = config.field;
-
-  container.innerHTML = '';
-
-  const data = utilities
-    .map((d) => ({
-      year: d.year,
-      month: d.month,
-      value: d[field],
-      date: new Date(d.year, d.month - 1),
-    }))
-    .filter((d) => d.value != null && !isNaN(d.value) && d.year && d.month)
-    .sort((a, b) => a.date - b.date);
-
-  if (data.length === 0) {
-    container.innerHTML = '<p style="text-align: center; padding: 40px;">No data available</p>';
-    return;
-  }
-
-  const startDate = data[0].date;
-  data.forEach((d, i) => {
-    const monthsSinceStart = (d.year - data[0].year) * 12 + (d.month - data[0].month);
-    d.timeIndex = monthsSinceStart;
-  });
-
-  const width = container.clientWidth || 600;
-  const height = Math.min(width, 600);
-  const centerX = width / 2;
-  const centerY = height / 2;
-  const maxRadius = Math.min(width, height) / 2 - CHART_MARGIN;
-
-  const svg = d3.create('svg').attr('width', width).attr('height', height).attr('viewBox', [0, 0, width, height]);
-
-  const g = svg.append('g').attr('transform', `translate(${centerX},${centerY})`);
-
-  const maxTime = d3.max(data, (d) => d.timeIndex) || MONTHS_PER_YEAR;
-  const maxValue = d3.max(data, (d) => d.value) || 100;
-
-  const revolutions = Math.ceil(maxTime / MONTHS_PER_YEAR);
-
-  const valueScale = d3
-    .scaleLinear()
-    .domain([0, maxValue])
-    .range([maxRadius * VALUE_SCALE_MIN, maxRadius * VALUE_SCALE_MAX]);
-
-  const spiralPath = (timeIndex, value) => {
-    const angle = (timeIndex / MONTHS_PER_YEAR) * 2 * Math.PI;
-    const radius = valueScale(value);
-    return {
-      x: radius * Math.cos(angle - Math.PI / 2),
-      y: radius * Math.sin(angle - Math.PI / 2),
-      angle,
-    };
+function spiralPath(month, value, valueScale) {
+  const angle = ((month - 1) / MONTHS_PER_YEAR) * 2 * Math.PI;
+  const radius = valueScale(value);
+  return {
+    x: radius * Math.cos(angle - Math.PI / 2),
+    y: radius * Math.sin(angle - Math.PI / 2),
+    angle,
   };
+}
 
-  for (let i = 1; i <= VALUE_CIRCLES; i++) {
-    const value = (maxValue / VALUE_CIRCLES) * i;
+function drawPolarGridLines(g, maxValue, valueScale) {
+  for (let i = 1; i <= VALUE_CIRCLE_COUNT; i++) {
+    const value = (maxValue / VALUE_CIRCLE_COUNT) * i;
     const radius = valueScale(value);
 
     g.append('circle')
@@ -110,9 +51,9 @@ export function createUtilityChart(utilities, utilityType = 'gas') {
       .attr('fill', 'none')
       .attr('stroke', '#e0e0e0')
       .attr('stroke-width', 1)
-      .attr('stroke-dasharray', i === VALUE_CIRCLES ? 'none' : '2,4');
+      .attr('stroke-dasharray', i === VALUE_CIRCLE_COUNT ? 'none' : '2,4');
 
-    if (i < VALUE_CIRCLES) {
+    if (i < VALUE_CIRCLE_COUNT) {
       g.append('text')
         .attr('x', VALUE_LABEL_X_OFFSET)
         .attr('y', -radius + VALUE_LABEL_Y_OFFSET)
@@ -121,10 +62,13 @@ export function createUtilityChart(utilities, utilityType = 'gas') {
         .text(Math.round(value));
     }
   }
+}
+
+function drawMonthSpokes(g, maxValue, valueScale) {
+  const outerRadius = valueScale(maxValue);
 
   for (let month = 0; month < MONTHS_PER_YEAR; month++) {
     const angle = (month / MONTHS_PER_YEAR) * 2 * Math.PI - Math.PI / 2;
-    const outerRadius = valueScale(maxValue);
 
     g.append('line')
       .attr('x1', 0)
@@ -142,21 +86,9 @@ export function createUtilityChart(utilities, utilityType = 'gas') {
       .attr('text-anchor', 'middle')
       .text(strings.months[month]);
   }
+}
 
-  const dataPoints = data
-    .map((d) => {
-      const pos = spiralPath(d.timeIndex, d.value);
-      return [pos.x, pos.y];
-    })
-    .filter((point) => !isNaN(point[0]) && !isNaN(point[1]));
-
-  if (dataPoints.length === 0) {
-    container.innerHTML = '<p style="text-align: center; padding: 40px;">Unable to render chart</p>';
-    return;
-  }
-
-  const linePath = d3.line()(dataPoints);
-
+function addSpiralGradientDef(svg, data) {
   const gradient = svg.append('defs').append('linearGradient').attr('id', 'spiral-gradient').attr('gradientUnits', 'userSpaceOnUse');
 
   data.forEach((d, i) => {
@@ -165,14 +97,26 @@ export function createUtilityChart(utilities, utilityType = 'gas') {
       .attr('offset', `${(i / (data.length - 1)) * 100}%`)
       .attr('stop-color', getBluePurpleColor(i / (data.length - 1)));
   });
+}
 
+function drawSpiralPath(svg, g, data, valueScale, utilityType) {
+  addSpiralGradientDef(svg, data);
+
+  const dataPoints = data.map((d) => {
+    const pos = spiralPath(d.month, d[utilityType], valueScale);
+    return [pos.x, pos.y];
+  });
+
+  const linePath = d3.line()(dataPoints);
   g.append('path')
     .attr('d', linePath)
     .attr('fill', 'none')
     .attr('stroke', 'url(#spiral-gradient)')
     .attr('stroke-width', LINE_STROKE_WIDTH)
     .attr('stroke-linecap', 'round');
+}
 
+function addTooltipAndPoints(container, g, data, valueScale, utilityType) {
   const tooltip = d3
     .select(container)
     .append('div')
@@ -188,7 +132,7 @@ export function createUtilityChart(utilities, utilityType = 'gas') {
   const pointsGroup = g.append('g');
 
   data.forEach((d, i) => {
-    const pos = spiralPath(d.timeIndex, d.value);
+    const pos = spiralPath(d.month, d[utilityType], valueScale);
     if (isNaN(pos.x) || isNaN(pos.y)) return;
 
     const pointGroup = pointsGroup.append('g');
@@ -217,7 +161,7 @@ export function createUtilityChart(utilities, utilityType = 'gas') {
         tooltip
           .style('opacity', 1)
           .html(
-            `<strong>${strings.months[d.month - 1]} ${d.year}</strong><br>${d.value.toFixed(field === 'water' ? 2 : 0)} ${config.label.match(/\(([^)]+)\)/)?.[1] || ''}`,
+            `<strong>${strings.months[d.month - 1]} ${d.year}</strong><br>${d[utilityType].toFixed(utilityType === 'water' ? 2 : 0)} ${strings.units[utilityType]}`,
           );
       })
       .on('mousemove', function (event) {
@@ -230,8 +174,44 @@ export function createUtilityChart(utilities, utilityType = 'gas') {
         tooltip.style('opacity', 0);
       });
   });
+}
 
-  container.appendChild(svg.node());
+function createSvgWithGroup(width, height) {
+  const svg = d3.create('svg').attr('width', width).attr('height', height).attr('viewBox', [0, 0, width, height]);
+  const g = svg.append('g').attr('transform', `translate(${width / 2},${height / 2})`);
+  return { g, svg };
+}
+
+export function createUtilityChart(utilities, utilityType = 'gas') {
+  const data = utilities
+    .filter((d) => d[utilityType] != null && !isNaN(d[utilityType]) && d.year && d.month)
+    .sort((a, b) => a.year - b.year || a.month - b.month);
+
+  const utilityChart = document.getElementById('utility-chart');
+  utilityChart.innerHTML = '';
+  if (data.length === 0) {
+    utilityChart.innerHTML = '<p style="text-align: center; padding: 40px;">No data available</p>';
+    return;
+  }
+
+  const width = utilityChart.clientWidth || 600;
+  const height = Math.min(width, 600);
+
+  const { g, svg } = createSvgWithGroup(width, height);
+
+  const maxValue = Math.max(...data.map((d) => d[utilityType]));
+  const maxRadius = Math.min(width, height) / 2 - CHART_MARGIN;
+  const valueScale = d3
+    .scaleLinear()
+    .domain([0, maxValue])
+    .range([maxRadius * VALUE_SCALE_MIN, maxRadius * VALUE_SCALE_MAX]);
+
+  drawPolarGridLines(g, maxValue, valueScale);
+  drawMonthSpokes(g, maxValue, valueScale);
+  drawSpiralPath(svg, g, data, valueScale, utilityType);
+  addTooltipAndPoints(utilityChart, g, data, valueScale, utilityType);
+
+  utilityChart.appendChild(svg.node());
 }
 
 export function initializeUtilityToggle() {
@@ -239,13 +219,13 @@ export function initializeUtilityToggle() {
 
   buttons.forEach((button) => {
     button.addEventListener('click', () => {
-      const utilityType = button.dataset.utility;
-
       buttons.forEach((btn) => btn.classList.remove('active'));
       button.classList.add('active');
 
       if (utilityData) {
-        createUtilityChart(utilityData, utilityType);
+        utilityData = utilities;
+
+        createUtilityChart(utilityData, button.dataset.utility);
       }
     });
   });
