@@ -1,11 +1,26 @@
-import { Chart, RadarController, RadialLinearScale, PointElement, LineElement, Tooltip, Legend, Filler } from 'chart.js';
-
-Chart.register(RadarController, RadialLinearScale, PointElement, LineElement, Tooltip, Legend, Filler);
-
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-let chartInstance = null;
+const CHART_MARGIN = 0;
+const VALUE_SCALE_MIN = 0.15;
+const VALUE_SCALE_MAX = 0.85;
+const VALUE_CIRCLES = 5;
+const MONTHS_PER_YEAR = 12;
+const MONTH_LABEL_OFFSET = 20;
+const MONTH_LABEL_Y_OFFSET = 4;
+const MONTH_LABEL_FONT_SIZE = 11;
+const VALUE_LABEL_FONT_SIZE = 10;
+const VALUE_LABEL_X_OFFSET = 5;
+const VALUE_LABEL_Y_OFFSET = 3;
+const LINE_STROKE_WIDTH = 2.5;
+const HOVER_POINT_RADIUS = 5;
+const HOVER_STROKE_WIDTH = 2;
+const TOOLTIP_X_OFFSET = 15;
+const TOOLTIP_Y_OFFSET = -10;
+const DATA_POINT_RADIUS = 3;
+const DATA_POINT_HOVER_AREA = 8;
+
 let utilityData = null;
+let currentUtilityType = 'gas';
 
 const UTILITY_CONFIG = {
   gas: { label: 'Gas (m³)', field: 'gas' },
@@ -13,106 +28,209 @@ const UTILITY_CONFIG = {
   electricity: { label: 'Electricity (kWh)', field: 'electricity' },
 };
 
-function getBluePurpleColor(index, total, alpha = 1) {
-  const colors = [
-    [200, 180, 220],
-    [170, 150, 210],
-    [140, 120, 200],
-    [110, 90, 180],
-    [90, 70, 160],
-    [70, 50, 140],
-    [50, 30, 120],
-  ];
-
-  if (total === 1) {
-    const color = colors[colors.length - 1];
-    return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`;
-  }
-
-  const colorIndex = Math.floor((index * (colors.length - 1)) / (total - 1));
-  const color = colors[Math.min(colorIndex, colors.length - 1)];
-  return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`;
+function getBluePurpleColor(t) {
+  const start = { r: 200, g: 180, b: 220 };
+  const end = { r: 50, g: 30, b: 120 };
+  const r = Math.round(start.r + (end.r - start.r) * t);
+  const g = Math.round(start.g + (end.g - start.g) * t);
+  const b = Math.round(start.b + (end.b - start.b) * t);
+  return `rgb(${r}, ${g}, ${b})`;
 }
 
 export function createUtilityChart(utilities, utilityType = 'gas') {
-  const canvas = document.getElementById('utility-chart');
-  if (!canvas) return;
+  const container = document.getElementById('utility-chart');
+  if (!container) return;
 
-  // Store utility data for switching
   utilityData = utilities;
+  currentUtilityType = utilityType;
 
   const config = UTILITY_CONFIG[utilityType];
   const field = config.field;
 
-  // Group data by year
-  const dataByYear = {};
-  utilities.forEach((record) => {
-    if (!dataByYear[record.year]) {
-      dataByYear[record.year] = new Array(12).fill(null);
-    }
-    dataByYear[record.year][record.month - 1] = record[field];
-  });
+  container.innerHTML = '';
 
-  // Create datasets for each year
-  const years = Object.keys(dataByYear).sort((a, b) => b - a);
-  const datasets = years.map((year, index) => {
-    const colorIndex = years.length - 1 - index;
-    return {
-      label: year,
-      data: dataByYear[year],
-      borderColor: getBluePurpleColor(colorIndex, years.length, 1),
-      backgroundColor: 'transparent',
-      pointBackgroundColor: getBluePurpleColor(colorIndex, years.length, 1),
-      pointBorderColor: '#fff',
-      pointHoverBackgroundColor: '#fff',
-      pointHoverBorderColor: getBluePurpleColor(colorIndex, years.length, 1),
-      borderWidth: 2,
-      pointRadius: 0,
-      pointHoverRadius: 5,
-      fill: false,
-      order: index,
-    };
-  });
+  const data = utilities
+    .map((d) => ({
+      year: d.year,
+      month: d.month,
+      value: d[field],
+      date: new Date(d.year, d.month - 1),
+    }))
+    .filter((d) => d.value != null && !isNaN(d.value) && d.year && d.month)
+    .sort((a, b) => a.date - b.date);
 
-  // Destroy existing chart if it exists
-  if (chartInstance) {
-    chartInstance.destroy();
+  if (data.length === 0) {
+    container.innerHTML = '<p style="text-align: center; padding: 40px;">No data available</p>';
+    return;
   }
 
-  // Create new chart
-  chartInstance = new Chart(canvas, {
-    type: 'radar',
-    data: {
-      labels: MONTHS,
-      datasets: datasets,
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      aspectRatio: 1.2,
-      plugins: {
-        legend: {
-          position: 'bottom',
-        },
-        tooltip: {
-          mode: 'index',
-          intersect: false,
-        },
-      },
-      scales: {
-        r: {
-          beginAtZero: true,
-          title: {
-            display: true,
-            text: config.label,
-          },
-          ticks: {
-            stepSize: 50,
-          },
-        },
-      },
-    },
+  const startDate = data[0].date;
+  data.forEach((d, i) => {
+    const monthsSinceStart = (d.year - data[0].year) * 12 + (d.month - data[0].month);
+    d.timeIndex = monthsSinceStart;
   });
+
+  const width = container.clientWidth || 600;
+  const height = Math.min(width, 600);
+  const centerX = width / 2;
+  const centerY = height / 2;
+  const maxRadius = Math.min(width, height) / 2 - CHART_MARGIN;
+
+  const svg = d3.create('svg').attr('width', width).attr('height', height).attr('viewBox', [0, 0, width, height]);
+
+  const g = svg.append('g').attr('transform', `translate(${centerX},${centerY})`);
+
+  const maxTime = d3.max(data, (d) => d.timeIndex) || MONTHS_PER_YEAR;
+  const maxValue = d3.max(data, (d) => d.value) || 100;
+
+  const revolutions = Math.ceil(maxTime / MONTHS_PER_YEAR);
+
+  const valueScale = d3
+    .scaleLinear()
+    .domain([0, maxValue])
+    .range([maxRadius * VALUE_SCALE_MIN, maxRadius * VALUE_SCALE_MAX]);
+
+  const spiralPath = (timeIndex, value) => {
+    const angle = (timeIndex / MONTHS_PER_YEAR) * 2 * Math.PI;
+    const radius = valueScale(value);
+    return {
+      x: radius * Math.cos(angle - Math.PI / 2),
+      y: radius * Math.sin(angle - Math.PI / 2),
+      angle,
+    };
+  };
+
+  for (let i = 1; i <= VALUE_CIRCLES; i++) {
+    const value = (maxValue / VALUE_CIRCLES) * i;
+    const radius = valueScale(value);
+
+    g.append('circle')
+      .attr('cx', 0)
+      .attr('cy', 0)
+      .attr('r', radius)
+      .attr('fill', 'none')
+      .attr('stroke', '#e0e0e0')
+      .attr('stroke-width', 1)
+      .attr('stroke-dasharray', i === VALUE_CIRCLES ? 'none' : '2,4');
+
+    if (i < VALUE_CIRCLES) {
+      g.append('text')
+        .attr('x', VALUE_LABEL_X_OFFSET)
+        .attr('y', -radius + VALUE_LABEL_Y_OFFSET)
+        .attr('font-size', `${VALUE_LABEL_FONT_SIZE}px`)
+        .attr('fill', '#999')
+        .text(Math.round(value));
+    }
+  }
+
+  for (let month = 0; month < MONTHS_PER_YEAR; month++) {
+    const angle = (month / MONTHS_PER_YEAR) * 2 * Math.PI - Math.PI / 2;
+    const outerRadius = valueScale(maxValue);
+
+    g.append('line')
+      .attr('x1', 0)
+      .attr('y1', 0)
+      .attr('x2', outerRadius * Math.cos(angle))
+      .attr('y2', outerRadius * Math.sin(angle))
+      .attr('stroke', '#e8e8e8')
+      .attr('stroke-width', 0.5);
+
+    g.append('text')
+      .attr('x', (outerRadius + MONTH_LABEL_OFFSET) * Math.cos(angle))
+      .attr('y', (outerRadius + MONTH_LABEL_OFFSET) * Math.sin(angle) + MONTH_LABEL_Y_OFFSET)
+      .attr('font-size', `${MONTH_LABEL_FONT_SIZE}px`)
+      .attr('fill', '#666')
+      .attr('text-anchor', 'middle')
+      .text(MONTHS[month]);
+  }
+
+  const dataPoints = data
+    .map((d) => {
+      const pos = spiralPath(d.timeIndex, d.value);
+      return [pos.x, pos.y];
+    })
+    .filter((point) => !isNaN(point[0]) && !isNaN(point[1]));
+
+  if (dataPoints.length === 0) {
+    container.innerHTML = '<p style="text-align: center; padding: 40px;">Unable to render chart</p>';
+    return;
+  }
+
+  const linePath = d3.line()(dataPoints);
+
+  const gradient = svg.append('defs').append('linearGradient').attr('id', 'spiral-gradient').attr('gradientUnits', 'userSpaceOnUse');
+
+  data.forEach((d, i) => {
+    gradient
+      .append('stop')
+      .attr('offset', `${(i / (data.length - 1)) * 100}%`)
+      .attr('stop-color', getBluePurpleColor(i / (data.length - 1)));
+  });
+
+  g.append('path')
+    .attr('d', linePath)
+    .attr('fill', 'none')
+    .attr('stroke', 'url(#spiral-gradient)')
+    .attr('stroke-width', LINE_STROKE_WIDTH)
+    .attr('stroke-linecap', 'round');
+
+  const tooltip = d3
+    .select(container)
+    .append('div')
+    .style('position', 'absolute')
+    .style('background', 'rgba(0, 0, 0, 0.8)')
+    .style('color', 'white')
+    .style('padding', '8px 12px')
+    .style('border-radius', '4px')
+    .style('font-size', '12px')
+    .style('pointer-events', 'none')
+    .style('opacity', 0);
+
+  const pointsGroup = g.append('g');
+
+  data.forEach((d, i) => {
+    const pos = spiralPath(d.timeIndex, d.value);
+    if (isNaN(pos.x) || isNaN(pos.y)) return;
+
+    const pointGroup = pointsGroup.append('g');
+
+    pointGroup
+      .append('circle')
+      .attr('cx', pos.x)
+      .attr('cy', pos.y)
+      .attr('r', DATA_POINT_HOVER_AREA)
+      .attr('fill', 'transparent')
+      .style('cursor', 'pointer');
+
+    const visiblePoint = pointGroup
+      .append('circle')
+      .attr('cx', pos.x)
+      .attr('cy', pos.y)
+      .attr('r', 0)
+      .attr('fill', getBluePurpleColor(i / (data.length - 1)))
+      .attr('stroke', '#fff')
+      .attr('stroke-width', 0)
+      .style('pointer-events', 'none');
+
+    pointGroup
+      .on('mouseenter', function () {
+        visiblePoint.attr('r', HOVER_POINT_RADIUS).attr('stroke-width', HOVER_STROKE_WIDTH);
+        tooltip
+          .style('opacity', 1)
+          .html(`<strong>${MONTHS[d.month - 1]} ${d.year}</strong><br>${d.value} ${config.label.match(/\(([^)]+)\)/)?.[1] || ''}`);
+      })
+      .on('mousemove', function (event) {
+        tooltip
+          .style('left', event.pageX - container.offsetLeft + TOOLTIP_X_OFFSET + 'px')
+          .style('top', event.pageY - container.offsetTop + TOOLTIP_Y_OFFSET + 'px');
+      })
+      .on('mouseleave', function () {
+        visiblePoint.attr('r', 0).attr('stroke-width', 0);
+        tooltip.style('opacity', 0);
+      });
+  });
+
+  container.appendChild(svg.node());
 }
 
 export function initializeUtilityToggle() {
@@ -122,11 +240,9 @@ export function initializeUtilityToggle() {
     button.addEventListener('click', () => {
       const utilityType = button.dataset.utility;
 
-      // Update active state
       buttons.forEach((btn) => btn.classList.remove('active'));
       button.classList.add('active');
 
-      // Redraw chart with new utility type
       if (utilityData) {
         createUtilityChart(utilityData, utilityType);
       }

@@ -140,18 +140,27 @@ p {
   margin-bottom: 0;
 }
 
-.data-section h2 {
+.card h2 {
   font-size: 20px;
   color: #333;
   margin-bottom: 16px;
   text-align: left;
 }
 
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.card-header h2 {
+  margin-bottom: 0;
+}
+
 .utility-toggle {
   display: flex;
   gap: 8px;
-  margin-bottom: 20px;
-  justify-content: flex-start;
 }
 
 .utility-btn {
@@ -176,9 +185,9 @@ p {
   border-color: transparent;
 }
 
-.chart-container {
-  padding: 20px;
-  background: #f8f9fa;
+#utility-chart {
+  position: relative;
+  background: white;
   border-radius: 8px;
 }
 

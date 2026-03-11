@@ -1,8 +1,7 @@
 export const utilityTableTemplate = (strings) => `
 <div class="card">
-  <div class="data-section">
-    <h2>${strings.dashboard.heading}</h2>
-    <table id="utility-table">
+  <h2>${strings.dashboard.heading}</h2>
+  <table id="utility-table">
       <thead>
         <tr>
           <th>${strings.table.headers.date}</th>
@@ -18,6 +17,5 @@ export const utilityTableTemplate = (strings) => `
         </tr>
       </tbody>
     </table>
-  </div>
 </div>
 `;
