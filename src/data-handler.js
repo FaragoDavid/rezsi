@@ -49,9 +49,9 @@ function buildUtilityTable(utilities) {
       return `
         <tr>
           <td>${format(date, DATE_FORMAT)}</td>
-          <td>${record.gas} ${UNITS.gas}</td>
-          <td>${record.electricity} ${UNITS.electricity}</td>
-          <td>${record.water} ${UNITS.water}</td>
+          <td>${isNaN(record.gas) ? "" : `${record.gas.toFixed(0)} ${UNITS.gas}`}</td>
+          <td>${isNaN(record.electricity) ? "" : `${record.electricity.toFixed(0)} ${UNITS.electricity}`}</td>
+          <td>${isNaN(record.water) ? "" : `${record.water.toFixed(2)} ${UNITS.water}`}</td>
         </tr>
       `;
     })
