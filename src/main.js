@@ -1,10 +1,11 @@
 // Main entry point - loads appropriate auth module based on environment
 import './styles.css';
-import { initializeUI } from './ui/ui-init.js';
+import { renderApp, renderDashboard } from './ui/app-templates.js';
 
 async function initializeApp() {
-  // Initialize UI templates and strings
-  initializeUI();
+  // Render app structure and dashboard components
+  renderApp();
+  renderDashboard();
 
   let authModule;
 

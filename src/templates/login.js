@@ -1,6 +1,7 @@
+export const loginTemplate = (strings) => `
 <div id="login-section" class="section">
   <div class="card">
-    <h1>Welcome to Rezsi</h1>
+    <h1>${strings.login.heading}</h1>
     <button id="google-signin-button" class="btn google-btn">
       <svg width="18" height="18" viewBox="0 0 18 18" style="margin-right: 8px">
         <path
@@ -20,7 +21,8 @@
           d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"
         />
       </svg>
-      Sign in with Google
+      ${strings.login.signInButton}
     </button>
   </div>
 </div>
+`;
