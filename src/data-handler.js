@@ -17,10 +17,31 @@ function buildUtilityTable(utilities) {
     return `<tr><td colspan="4">${strings.dashboard.noDataMessage}</td></tr>`;
   }
 
-  const sortedData = [...utilities].sort((a, b) => {
-    if (a.year !== b.year) return b.year - a.year;
-    return b.month - a.month;
+  const chronological = [...utilities].sort((a, b) => {
+    if (a.year !== b.year) return a.year - b.year;
+    return a.month - b.month;
   });
+
+  const increments = chronological.map((record, index) => {
+    if (index === 0) {
+      return {
+        ...record,
+        gas: record.gas,
+        electricity: record.electricity,
+        water: record.water,
+      };
+    }
+
+    const previous = chronological[index - 1];
+    return {
+      ...record,
+      gas: record.gas - previous.gas,
+      electricity: record.electricity - previous.electricity,
+      water: record.water - previous.water,
+    };
+  });
+
+  const sortedData = increments.reverse();
 
   return sortedData
     .map((record) => {
