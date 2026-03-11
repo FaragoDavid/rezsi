@@ -48,10 +48,13 @@ function buildUtilityTable(utilities) {
   const sortedData = increments.reverse();
 
   return sortedData
-    .map((record) => {
+    .map((record, index) => {
       const date = new Date(record.year, record.month - 1);
+      const isYearDivider =
+        index > 0 && record.year !== sortedData[index - 1].year;
+      const rowClass = isYearDivider ? ' class="year-divider"' : "";
       return `
-        <tr>
+        <tr${rowClass}>
           <td>${format(date, DATE_FORMAT)}</td>
           <td>${isNaN(record.water) ? "" : `${record.water.toFixed(2)} ${UNITS.water}`}</td>
           <td>${isNaN(record.gas) ? "" : `${record.gas.toFixed(0)} ${UNITS.gas}`}</td>

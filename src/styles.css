@@ -175,6 +175,10 @@ p {
   background: #fafafa;
 }
 
+#utility-table tbody tr.year-divider td {
+  border-top: 2px solid #667eea;
+}
+
 #utility-table th:nth-child(2),
 #utility-table th:nth-child(3),
 #utility-table th:nth-child(4),
