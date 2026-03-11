@@ -16,9 +16,10 @@
   "table": {
     "headers": {
       "date": "Dátum",
+      "water": "Víz",
       "gas": "Gáz",
       "electricity": "Villany",
-      "water": "Víz"
+      "electricityMain": "Villany (fő)"
     }
   }
 }
