@@ -5,6 +5,13 @@ Chart.register(RadarController, RadialLinearScale, PointElement, LineElement, To
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 let chartInstance = null;
+let utilityData = null;
+
+const UTILITY_CONFIG = {
+  gas: { label: 'Gas (m³)', field: 'gas' },
+  water: { label: 'Water (m³)', field: 'water' },
+  electricity: { label: 'Electricity (kWh)', field: 'electricity' },
+};
 
 function getBluePurpleColor(index, total, alpha = 1) {
   const colors = [
@@ -27,9 +34,15 @@ function getBluePurpleColor(index, total, alpha = 1) {
   return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`;
 }
 
-export function createGasChart(utilities) {
-  const canvas = document.getElementById('gas-chart');
+export function createUtilityChart(utilities, utilityType = 'gas') {
+  const canvas = document.getElementById('utility-chart');
   if (!canvas) return;
+
+  // Store utility data for switching
+  utilityData = utilities;
+
+  const config = UTILITY_CONFIG[utilityType];
+  const field = config.field;
 
   // Group data by year
   const dataByYear = {};
@@ -37,7 +50,7 @@ export function createGasChart(utilities) {
     if (!dataByYear[record.year]) {
       dataByYear[record.year] = new Array(12).fill(null);
     }
-    dataByYear[record.year][record.month - 1] = record.gas;
+    dataByYear[record.year][record.month - 1] = record[field];
   });
 
   // Create datasets for each year
@@ -91,7 +104,7 @@ export function createGasChart(utilities) {
           beginAtZero: true,
           title: {
             display: true,
-            text: 'Gas (m³)',
+            text: config.label,
           },
           ticks: {
             stepSize: 50,
@@ -99,5 +112,24 @@ export function createGasChart(utilities) {
         },
       },
     },
+  });
+}
+
+export function initializeUtilityToggle() {
+  const buttons = document.querySelectorAll('.utility-btn');
+
+  buttons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const utilityType = button.dataset.utility;
+
+      // Update active state
+      buttons.forEach((btn) => btn.classList.remove('active'));
+      button.classList.add('active');
+
+      // Redraw chart with new utility type
+      if (utilityData) {
+        createUtilityChart(utilityData, utilityType);
+      }
+    });
   });
 }

@@ -8,7 +8,7 @@ export const strings = {
   },
   dashboard: {
     heading: 'Havi Fogyasztás',
-    gasChartTitle: 'Gázfogyasztás Évek Szerint',
+    utilityChartTitle: 'Fogyasztás Évek Szerint',
     loadingMessage: 'Adatok betöltése...',
     noDataMessage: 'Nincs elérhető adat',
     errorMessage: 'Hiba az adatok betöltése során. Kérjük, próbáld újra.',
@@ -21,5 +21,10 @@ export const strings = {
       electricity: 'Villany',
       electricityMain: 'Villany (fő)',
     },
+  },
+  utilities: {
+    gas: 'Gáz',
+    water: 'Víz',
+    electricity: 'Villany',
   },
 };

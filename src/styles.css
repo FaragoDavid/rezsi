@@ -147,6 +147,35 @@ p {
   text-align: left;
 }
 
+.utility-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  justify-content: flex-start;
+}
+
+.utility-btn {
+  padding: 8px 16px;
+  border: 2px solid #667eea;
+  background: white;
+  color: #667eea;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.utility-btn:hover {
+  background: #f0f3ff;
+}
+
+.utility-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: transparent;
+}
+
 .chart-container {
   padding: 20px;
   background: #f8f9fa;
