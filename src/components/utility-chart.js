@@ -89,33 +89,31 @@ function drawMonthSpokes(chartGroup, maxValue, valueScale) {
   }
 }
 
-function addSpiralGradientDef(svg, data) {
-  const gradient = svg.append('defs').append('linearGradient').attr('id', 'spiral-gradient').attr('gradientUnits', 'userSpaceOnUse');
+function drawSpiralPath(chartGroup, data, valueScale, utilityType) {
+  const minDate = data[0].year * 12 + data[0].month;
+  const maxDate = data[data.length - 1].year * 12 + data[data.length - 1].month;
+  const dateRange = maxDate - minDate;
 
-  data.forEach((d, i) => {
-    gradient
-      .append('stop')
-      .attr('offset', `${(i / (data.length - 1)) * 100}%`)
-      .attr('stop-color', getBluePurpleColor(i / (data.length - 1)));
-  });
-}
+  for (let i = 0; i < data.length - 1; i++) {
+    const d1 = data[i];
+    const d2 = data[i + 1];
 
-function drawSpiralPath(svg, chartGroup, data, valueScale, utilityType) {
-  addSpiralGradientDef(svg, data);
+    const pos1 = spiralPath(d1.month, d1[utilityType], valueScale);
+    const pos2 = spiralPath(d2.month, d2[utilityType], valueScale);
 
-  const dataPoints = data.map((d) => {
-    const pos = spiralPath(d.month, d[utilityType], valueScale);
-    return [pos.x, pos.y];
-  });
+    const currentDate = d1.year * 12 + d1.month;
+    const t = dateRange > 0 ? (currentDate - minDate) / dateRange : 0;
 
-  const linePath = d3.line()(dataPoints);
-  chartGroup
-    .append('path')
-    .attr('d', linePath)
-    .attr('fill', 'none')
-    .attr('stroke', 'url(#spiral-gradient)')
-    .attr('stroke-width', LINE_STROKE_WIDTH)
-    .attr('stroke-linecap', 'round');
+    chartGroup
+      .append('line')
+      .attr('x1', pos1.x)
+      .attr('y1', pos1.y)
+      .attr('x2', pos2.x)
+      .attr('y2', pos2.y)
+      .attr('stroke', getBluePurpleColor(t))
+      .attr('stroke-width', LINE_STROKE_WIDTH)
+      .attr('stroke-linecap', 'round');
+  }
 }
 
 function addTooltipAndPoints(container, chartGroup, data, valueScale, utilityType) {
@@ -133,9 +131,16 @@ function addTooltipAndPoints(container, chartGroup, data, valueScale, utilityTyp
 
   const pointsGroup = chartGroup.append('g');
 
+  const minDate = data[0].year * 12 + data[0].month;
+  const maxDate = data[data.length - 1].year * 12 + data[data.length - 1].month;
+  const dateRange = maxDate - minDate;
+
   data.forEach((d, i) => {
     const pos = spiralPath(d.month, d[utilityType], valueScale);
     if (isNaN(pos.x) || isNaN(pos.y)) return;
+
+    const currentDate = d.year * 12 + d.month;
+    const t = dateRange > 0 ? (currentDate - minDate) / dateRange : 0;
 
     const pointGroup = pointsGroup.append('g');
 
@@ -152,7 +157,7 @@ function addTooltipAndPoints(container, chartGroup, data, valueScale, utilityTyp
       .attr('cx', pos.x)
       .attr('cy', pos.y)
       .attr('r', 0)
-      .attr('fill', getBluePurpleColor(i / (data.length - 1)))
+      .attr('fill', getBluePurpleColor(t))
       .attr('stroke', '#fff')
       .attr('stroke-width', 0)
       .style('pointer-events', 'none');
@@ -210,7 +215,7 @@ export function createUtilityChart(utilities, utilityType = getSelectedUtility()
 
   drawPolarGridLines(chartGroup, maxValue, valueScale);
   drawMonthSpokes(chartGroup, maxValue, valueScale);
-  drawSpiralPath(svg, chartGroup, data, valueScale, utilityType);
+  drawSpiralPath(chartGroup, data, valueScale, utilityType);
   addTooltipAndPoints(utilityChart, chartGroup, data, valueScale, utilityType);
 
   utilityChart.appendChild(svg.node());
