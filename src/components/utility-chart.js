@@ -172,9 +172,10 @@ function addTooltipAndPoints(container, chartGroup, data, valueScale, utilityTyp
           );
       })
       .on('mousemove', function (event) {
+        const rect = container.getBoundingClientRect();
         tooltip
-          .style('left', event.pageX - container.offsetLeft + TOOLTIP_X_OFFSET + 'px')
-          .style('top', event.pageY - container.offsetTop + TOOLTIP_Y_OFFSET + 'px');
+          .style('left', event.clientX - rect.left + TOOLTIP_X_OFFSET + 'px')
+          .style('top', event.clientY - rect.top + TOOLTIP_Y_OFFSET + 'px');
       })
       .on('mouseleave', function () {
         visiblePoint.attr('r', 0).attr('stroke-width', 0);

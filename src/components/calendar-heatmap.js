@@ -124,9 +124,10 @@ export function createCalendarHeatmap(utilities, utilityType = getSelectedUtilit
               .html(`<strong>${strings.months[monthIdx]} ${year}</strong><br>${value} ${strings.units[utilityType]}`);
           })
           .on('mousemove', function (event) {
+            const rect = container.getBoundingClientRect();
             tooltip
-              .style('left', event.pageX - container.offsetLeft + TOOLTIP_X_OFFSET + 'px')
-              .style('top', event.pageY - container.offsetTop + TOOLTIP_Y_OFFSET + 'px');
+              .style('left', event.clientX - rect.left + TOOLTIP_X_OFFSET + 'px')
+              .style('top', event.clientY - rect.top + TOOLTIP_Y_OFFSET + 'px');
           })
           .on('mouseleave', function () {
             d3.select(this).attr('stroke', '#ddd').attr('stroke-width', 1);
