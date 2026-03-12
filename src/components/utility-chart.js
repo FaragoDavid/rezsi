@@ -20,12 +20,10 @@ const TOOLTIP_Y_OFFSET = -10;
 const DATA_POINT_HOVER_AREA = 8;
 
 function getBluePurpleColor(t) {
-  const start = { r: 200, g: 180, b: 220 };
-  const end = { r: 50, g: 30, b: 120 };
-  const r = Math.round(start.r + (end.r - start.r) * t);
-  const g = Math.round(start.g + (end.g - start.g) * t);
-  const b = Math.round(start.b + (end.b - start.b) * t);
-  return `rgb(${r}, ${g}, ${b})`;
+  const hue = 250;
+  const saturation = 70;
+  const lightness = 90 - t * 50;
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
 
 function spiralPath(month, value, valueScale) {
