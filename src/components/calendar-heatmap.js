@@ -1,4 +1,5 @@
 import { strings } from '../i18n/strings.js';
+import { getSelectedUtility, setSelectedUtility } from '../utils/storage.js';
 
 const CELL_SIZE = 50;
 const CELL_GAP = 2;
@@ -19,7 +20,7 @@ function getColorScale(value, maxValue) {
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
 
-export function createCalendarHeatmap(utilities, utilityType = 'gas') {
+export function createCalendarHeatmap(utilities, utilityType = getSelectedUtility()) {
   const container = document.getElementById('calendar-heatmap');
   if (!container) return;
 
@@ -136,6 +137,15 @@ export function createCalendarHeatmap(utilities, utilityType = 'gas') {
 
 export function initializeHeatmapToggle() {
   const buttons = document.querySelectorAll('.heatmap-btn');
+  const selectedUtility = getSelectedUtility();
+
+  buttons.forEach((button) => {
+    if (button.dataset.utility === selectedUtility) {
+      button.classList.add('active');
+    } else {
+      button.classList.remove('active');
+    }
+  });
 
   buttons.forEach((button) => {
     button.addEventListener('click', () => {
@@ -143,6 +153,8 @@ export function initializeHeatmapToggle() {
 
       buttons.forEach((btn) => btn.classList.remove('active'));
       button.classList.add('active');
+
+      setSelectedUtility(utilityType);
 
       if (heatmapData) {
         createCalendarHeatmap(heatmapData, utilityType);

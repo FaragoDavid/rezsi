@@ -1,4 +1,5 @@
 import { strings } from '../i18n/strings.js';
+import { getSelectedUtility, setSelectedUtility } from '../utils/storage.js';
 
 const CHART_MARGIN = 0;
 const VALUE_SCALE_MIN = 0.15;
@@ -187,7 +188,7 @@ function createSvgWithGroup(width, height) {
   return { chartGroup, svg };
 }
 
-export function createUtilityChart(utilities, utilityType = 'gas') {
+export function createUtilityChart(utilities, utilityType = getSelectedUtility()) {
   utilityData = utilities;
 
   const data = utilities
@@ -223,14 +224,26 @@ export function createUtilityChart(utilities, utilityType = 'gas') {
 
 export function initializeUtilityToggle() {
   const buttons = document.querySelectorAll('.utility-btn');
+  const selectedUtility = getSelectedUtility();
+
+  buttons.forEach((button) => {
+    if (button.dataset.utility === selectedUtility) {
+      button.classList.add('active');
+    } else {
+      button.classList.remove('active');
+    }
+  });
 
   buttons.forEach((button) => {
     button.addEventListener('click', () => {
       buttons.forEach((btn) => btn.classList.remove('active'));
       button.classList.add('active');
 
+      const selectedUtility = button.dataset.utility;
+      setSelectedUtility(selectedUtility);
+
       if (utilityData) {
-        createUtilityChart(utilityData, button.dataset.utility);
+        createUtilityChart(utilityData, selectedUtility);
       }
     });
   });
