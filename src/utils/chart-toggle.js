@@ -1,7 +1,18 @@
+import { getSelectedChartType, setSelectedChartType } from './storage.js';
+
 export function initializeChartTypeToggle() {
   const buttons = document.querySelectorAll('.chart-type-btn');
   const heatmapContainer = document.getElementById('calendar-heatmap');
   const spiralContainer = document.getElementById('utility-chart');
+  const selectedChartType = getSelectedChartType();
+
+  buttons.forEach((button) => {
+    if (button.dataset.chart === selectedChartType) {
+      button.classList.add('active');
+    } else {
+      button.classList.remove('active');
+    }
+  });
 
   buttons.forEach((button) => {
     button.addEventListener('click', () => {
@@ -9,6 +20,8 @@ export function initializeChartTypeToggle() {
 
       buttons.forEach((btn) => btn.classList.remove('active'));
       button.classList.add('active');
+
+      setSelectedChartType(chartType);
 
       if (chartType === 'heatmap') {
         heatmapContainer.style.display = 'block';
@@ -20,14 +33,12 @@ export function initializeChartTypeToggle() {
     });
   });
 
-  // Initialize visibility based on active button
-  const activeButton = document.querySelector('.chart-type-btn.active');
-  if (activeButton) {
-    const chartType = activeButton.dataset.chart;
-    if (chartType === 'heatmap') {
-      spiralContainer.style.display = 'none';
-    } else {
-      heatmapContainer.style.display = 'none';
-    }
+  // Initialize visibility based on selected chart type
+  if (selectedChartType === 'heatmap') {
+    heatmapContainer.style.display = 'block';
+    spiralContainer.style.display = 'none';
+  } else {
+    heatmapContainer.style.display = 'none';
+    spiralContainer.style.display = 'block';
   }
 }
