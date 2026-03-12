@@ -122,10 +122,6 @@ p {
   align-items: start;
 }
 
-.calendar-heatmap-card {
-  grid-column: 1 / -1;
-}
-
 .header {
   display: flex;
   justify-content: space-between;
@@ -216,10 +212,6 @@ p {
   border-color: transparent;
 }
 
-.charts-card {
-  position: relative;
-}
-
 .charts-container {
   position: relative;
   min-height: 600px;
@@ -239,8 +231,6 @@ p {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-}
-  align-items: center;
 }
 
 #utility-table {
