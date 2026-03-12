@@ -1,5 +1,5 @@
 import { strings } from '../i18n/strings.js';
-import { getSelectedUtility, setSelectedUtility } from '../utils/storage.js';
+import { getSelectedUtility } from '../utils/storage.js';
 
 const CELL_SIZE = 50;
 const CELL_GAP = 2;
@@ -7,9 +7,6 @@ const YEAR_LABEL_WIDTH = 40;
 const MONTH_LABEL_HEIGHT = 30;
 const TOOLTIP_X_OFFSET = 15;
 const TOOLTIP_Y_OFFSET = -10;
-
-let heatmapData = null;
-let currentHeatmapUtility = 'gas';
 
 function getColorScale(value, maxValue) {
   if (!value || value === 0) return '#f0f0f0';
@@ -23,9 +20,6 @@ function getColorScale(value, maxValue) {
 export function createCalendarHeatmap(utilities, utilityType = getSelectedUtility()) {
   const container = document.getElementById('calendar-heatmap');
   if (!container) return;
-
-  heatmapData = utilities;
-  currentHeatmapUtility = utilityType;
 
   container.innerHTML = '';
 
@@ -50,16 +44,26 @@ export function createCalendarHeatmap(utilities, utilityType = getSelectedUtilit
     dataMap.set(`${d.year}-${d.month}`, d.value);
   });
 
-  const width = YEAR_LABEL_WIDTH + strings.months.length * (CELL_SIZE + CELL_GAP);
-  const height = MONTH_LABEL_HEIGHT + years.length * (CELL_SIZE + CELL_GAP);
+  const containerWidth = container.clientWidth || 700;
+  const availableWidth = containerWidth - 40;
+  const calculatedCellSize = Math.min(CELL_SIZE, Math.floor((availableWidth - YEAR_LABEL_WIDTH) / strings.months.length) - CELL_GAP);
+  const cellSize = Math.max(30, calculatedCellSize);
 
-  const svg = d3.create('svg').attr('width', width).attr('height', height).attr('viewBox', [0, 0, width, height]);
+  const width = YEAR_LABEL_WIDTH + strings.months.length * (cellSize + CELL_GAP);
+  const height = MONTH_LABEL_HEIGHT + years.length * (cellSize + CELL_GAP);
+
+  const svg = d3
+    .create('svg')
+    .attr('width', '100%')
+    .attr('height', height)
+    .attr('viewBox', [0, 0, width, height])
+    .attr('preserveAspectRatio', 'xMidYMid meet');
 
   const g = svg.append('g');
 
   for (let monthIdx = 0; monthIdx < strings.months.length; monthIdx++) {
     g.append('text')
-      .attr('x', YEAR_LABEL_WIDTH + monthIdx * (CELL_SIZE + CELL_GAP) + CELL_SIZE / 2)
+      .attr('x', YEAR_LABEL_WIDTH + monthIdx * (cellSize + CELL_GAP) + cellSize / 2)
       .attr('y', 20)
       .attr('text-anchor', 'middle')
       .attr('font-size', '12px')
@@ -72,7 +76,7 @@ export function createCalendarHeatmap(utilities, utilityType = getSelectedUtilit
 
     g.append('text')
       .attr('x', YEAR_LABEL_WIDTH - 5)
-      .attr('y', MONTH_LABEL_HEIGHT + yearIdx * (CELL_SIZE + CELL_GAP) + CELL_SIZE / 2 + 5)
+      .attr('y', MONTH_LABEL_HEIGHT + yearIdx * (cellSize + CELL_GAP) + cellSize / 2 + 5)
       .attr('text-anchor', 'end')
       .attr('font-size', '12px')
       .attr('fill', '#666')
@@ -97,15 +101,15 @@ export function createCalendarHeatmap(utilities, utilityType = getSelectedUtilit
     for (let monthIdx = 0; monthIdx < strings.months.length; monthIdx++) {
       const month = monthIdx + 1;
       const value = dataMap.get(`${year}-${month}`);
-      const x = YEAR_LABEL_WIDTH + monthIdx * (CELL_SIZE + CELL_GAP);
-      const y = MONTH_LABEL_HEIGHT + yearIdx * (CELL_SIZE + CELL_GAP);
+      const x = YEAR_LABEL_WIDTH + monthIdx * (cellSize + CELL_GAP);
+      const y = MONTH_LABEL_HEIGHT + yearIdx * (cellSize + CELL_GAP);
 
       const rect = g
         .append('rect')
         .attr('x', x)
         .attr('y', y)
-        .attr('width', CELL_SIZE)
-        .attr('height', CELL_SIZE)
+        .attr('width', cellSize)
+        .attr('height', cellSize)
         .attr('fill', getColorScale(value, maxValue))
         .attr('stroke', '#ddd')
         .attr('stroke-width', 1)
@@ -133,32 +137,4 @@ export function createCalendarHeatmap(utilities, utilityType = getSelectedUtilit
   }
 
   container.appendChild(svg.node());
-}
-
-export function initializeHeatmapToggle() {
-  const buttons = document.querySelectorAll('.heatmap-btn');
-  const selectedUtility = getSelectedUtility();
-
-  buttons.forEach((button) => {
-    if (button.dataset.utility === selectedUtility) {
-      button.classList.add('active');
-    } else {
-      button.classList.remove('active');
-    }
-  });
-
-  buttons.forEach((button) => {
-    button.addEventListener('click', () => {
-      const utilityType = button.dataset.utility;
-
-      buttons.forEach((btn) => btn.classList.remove('active'));
-      button.classList.add('active');
-
-      setSelectedUtility(utilityType);
-
-      if (heatmapData) {
-        createCalendarHeatmap(heatmapData, utilityType);
-      }
-    });
-  });
 }

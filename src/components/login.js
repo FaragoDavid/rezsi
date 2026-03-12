@@ -1,7 +1,9 @@
 import { loadUtilityData } from '../data/index.js';
 import { buildUtilityTable } from './utility-table.js';
-import { createUtilityChart, initializeUtilityToggle } from './utility-chart.js';
-import { createCalendarHeatmap, initializeHeatmapToggle } from './calendar-heatmap.js';
+import { createUtilityChart } from './utility-chart.js';
+import { createCalendarHeatmap } from './calendar-heatmap.js';
+import { initializeChartTypeToggle } from '../utils/chart-toggle.js';
+import { initializeUtilityToggle, registerChartCreator } from '../utils/unified-utility-toggle.js';
 import { strings } from '../i18n/strings.js';
 
 export function showUserSection() {
@@ -20,10 +22,15 @@ async function renderUtilityData() {
   try {
     const increments = await loadUtilityData();
     tbody.innerHTML = buildUtilityTable(increments);
+
     createUtilityChart(increments);
     createCalendarHeatmap(increments);
-    initializeHeatmapToggle();
+
+    registerChartCreator('spiral', (utilityType) => createUtilityChart(increments, utilityType));
+    registerChartCreator('heatmap', (utilityType) => createCalendarHeatmap(increments, utilityType));
+
     initializeUtilityToggle();
+    initializeChartTypeToggle();
   } catch (error) {
     console.error('Error loading utility data:', error);
     tbody.innerHTML = `<tr><td colspan="5">${strings.dashboard.errorMessage}</td></tr>`;

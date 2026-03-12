@@ -8,6 +8,7 @@ export const strings = {
   },
   dashboard: {
     heading: 'Havi Fogyasztás',
+    calendarHeatmap: 'Naptár Hőtérkép',
     utilityChartTitle: 'Fogyasztás Évek Szerint',
     loadingMessage: 'Adatok betöltése...',
     noDataMessage: 'Nincs elérhető adat',

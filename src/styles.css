@@ -162,6 +162,33 @@ p {
   margin-bottom: 0;
 }
 
+.chart-type-toggle {
+  display: flex;
+  gap: 8px;
+}
+
+.chart-type-btn {
+  padding: 8px 16px;
+  border: 2px solid #667eea;
+  background: white;
+  color: #667eea;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chart-type-btn:hover {
+  background: #f0f3ff;
+}
+
+.chart-type-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: transparent;
+}
+
 .utility-toggle {
   display: flex;
   gap: 8px;
@@ -189,18 +216,30 @@ p {
   border-color: transparent;
 }
 
-#utility-chart {
+.charts-card {
   position: relative;
+}
+
+.charts-container {
+  position: relative;
+  min-height: 600px;
+}
+
+#utility-chart,
+#calendar-heatmap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   background: white;
   border-radius: 8px;
 }
 
 #calendar-heatmap {
-  position: relative;
-  background: white;
-  border-radius: 8px;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
+}
   align-items: center;
 }
 

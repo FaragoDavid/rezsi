@@ -1,5 +1,5 @@
 import { strings } from '../i18n/strings.js';
-import { getSelectedUtility, setSelectedUtility } from '../utils/storage.js';
+import { getSelectedUtility } from '../utils/storage.js';
 
 const CHART_MARGIN = 0;
 const VALUE_SCALE_MIN = 0.15;
@@ -18,8 +18,6 @@ const HOVER_STROKE_WIDTH = 2;
 const TOOLTIP_X_OFFSET = 15;
 const TOOLTIP_Y_OFFSET = -10;
 const DATA_POINT_HOVER_AREA = 8;
-
-let utilityData = null;
 
 function getBluePurpleColor(t) {
   const start = { r: 200, g: 180, b: 220 };
@@ -189,8 +187,6 @@ function createSvgWithGroup(width, height) {
 }
 
 export function createUtilityChart(utilities, utilityType = getSelectedUtility()) {
-  utilityData = utilities;
-
   const data = utilities
     .filter((d) => d[utilityType] != null && !isNaN(d[utilityType]) && d.year && d.month)
     .sort((a, b) => a.year - b.year || a.month - b.month);
@@ -220,31 +216,4 @@ export function createUtilityChart(utilities, utilityType = getSelectedUtility()
   addTooltipAndPoints(utilityChart, chartGroup, data, valueScale, utilityType);
 
   utilityChart.appendChild(svg.node());
-}
-
-export function initializeUtilityToggle() {
-  const buttons = document.querySelectorAll('.utility-btn');
-  const selectedUtility = getSelectedUtility();
-
-  buttons.forEach((button) => {
-    if (button.dataset.utility === selectedUtility) {
-      button.classList.add('active');
-    } else {
-      button.classList.remove('active');
-    }
-  });
-
-  buttons.forEach((button) => {
-    button.addEventListener('click', () => {
-      buttons.forEach((btn) => btn.classList.remove('active'));
-      button.classList.add('active');
-
-      const selectedUtility = button.dataset.utility;
-      setSelectedUtility(selectedUtility);
-
-      if (utilityData) {
-        createUtilityChart(utilityData, selectedUtility);
-      }
-    });
-  });
 }
