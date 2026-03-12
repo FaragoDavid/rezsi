@@ -1,5 +1,6 @@
 import { strings } from '../i18n/strings.js';
 import { getSelectedUtility } from '../utils/storage.js';
+import { formatUtilityValue } from '../utils/format-value.js';
 
 const CELL_SIZE = 50;
 const CELL_GAP = 2;
@@ -121,7 +122,9 @@ export function createCalendarHeatmap(utilities, utilityType = getSelectedUtilit
             d3.select(this).attr('stroke', '#333').attr('stroke-width', 2);
             tooltip
               .style('opacity', 1)
-              .html(`<strong>${strings.months[monthIdx]} ${year}</strong><br>${value} ${strings.units[utilityType]}`);
+              .html(
+                `<strong>${strings.months[monthIdx]} ${year}</strong><br>${formatUtilityValue(value, utilityType)} ${strings.units[utilityType]}`,
+              );
           })
           .on('mousemove', function (event) {
             const rect = container.getBoundingClientRect();

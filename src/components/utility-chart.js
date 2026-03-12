@@ -1,5 +1,6 @@
 import { strings } from '../i18n/strings.js';
 import { getSelectedUtility } from '../utils/storage.js';
+import { formatUtilityValue } from '../utils/format-value.js';
 
 const CHART_MARGIN = 0;
 const VALUE_SCALE_MIN = 0.15;
@@ -168,7 +169,7 @@ function addTooltipAndPoints(container, chartGroup, data, valueScale, utilityTyp
         tooltip
           .style('opacity', 1)
           .html(
-            `<strong>${strings.months[d.month - 1]} ${d.year}</strong><br>${d[utilityType].toFixed(utilityType === 'water' ? 2 : 0)} ${strings.units[utilityType]}`,
+            `<strong>${strings.months[d.month - 1]} ${d.year}</strong><br>${formatUtilityValue(d[utilityType], utilityType)} ${strings.units[utilityType]}`,
           );
       })
       .on('mousemove', function (event) {
