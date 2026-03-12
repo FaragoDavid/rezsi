@@ -39,12 +39,13 @@ function spiralPath(month, value, valueScale) {
   };
 }
 
-function drawPolarGridLines(g, maxValue, valueScale) {
+function drawPolarGridLines(chartGroup, maxValue, valueScale) {
   for (let i = 1; i <= VALUE_CIRCLE_COUNT; i++) {
     const value = (maxValue / VALUE_CIRCLE_COUNT) * i;
     const radius = valueScale(value);
 
-    g.append('circle')
+    chartGroup
+      .append('circle')
       .attr('cx', 0)
       .attr('cy', 0)
       .attr('r', radius)
@@ -54,7 +55,8 @@ function drawPolarGridLines(g, maxValue, valueScale) {
       .attr('stroke-dasharray', i === VALUE_CIRCLE_COUNT ? 'none' : '2,4');
 
     if (i < VALUE_CIRCLE_COUNT) {
-      g.append('text')
+      chartGroup
+        .append('text')
         .attr('x', VALUE_LABEL_X_OFFSET)
         .attr('y', -radius + VALUE_LABEL_Y_OFFSET)
         .attr('font-size', `${VALUE_LABEL_FONT_SIZE}px`)
@@ -64,13 +66,14 @@ function drawPolarGridLines(g, maxValue, valueScale) {
   }
 }
 
-function drawMonthSpokes(g, maxValue, valueScale) {
+function drawMonthSpokes(chartGroup, maxValue, valueScale) {
   const outerRadius = valueScale(maxValue);
 
   for (let month = 0; month < MONTHS_PER_YEAR; month++) {
     const angle = (month / MONTHS_PER_YEAR) * 2 * Math.PI - Math.PI / 2;
 
-    g.append('line')
+    chartGroup
+      .append('line')
       .attr('x1', 0)
       .attr('y1', 0)
       .attr('x2', outerRadius * Math.cos(angle))
@@ -78,7 +81,8 @@ function drawMonthSpokes(g, maxValue, valueScale) {
       .attr('stroke', '#e8e8e8')
       .attr('stroke-width', 0.5);
 
-    g.append('text')
+    chartGroup
+      .append('text')
       .attr('x', (outerRadius + MONTH_LABEL_OFFSET) * Math.cos(angle))
       .attr('y', (outerRadius + MONTH_LABEL_OFFSET) * Math.sin(angle) + MONTH_LABEL_Y_OFFSET)
       .attr('font-size', `${MONTH_LABEL_FONT_SIZE}px`)
@@ -99,7 +103,7 @@ function addSpiralGradientDef(svg, data) {
   });
 }
 
-function drawSpiralPath(svg, g, data, valueScale, utilityType) {
+function drawSpiralPath(svg, chartGroup, data, valueScale, utilityType) {
   addSpiralGradientDef(svg, data);
 
   const dataPoints = data.map((d) => {
@@ -108,7 +112,8 @@ function drawSpiralPath(svg, g, data, valueScale, utilityType) {
   });
 
   const linePath = d3.line()(dataPoints);
-  g.append('path')
+  chartGroup
+    .append('path')
     .attr('d', linePath)
     .attr('fill', 'none')
     .attr('stroke', 'url(#spiral-gradient)')
@@ -116,7 +121,7 @@ function drawSpiralPath(svg, g, data, valueScale, utilityType) {
     .attr('stroke-linecap', 'round');
 }
 
-function addTooltipAndPoints(container, g, data, valueScale, utilityType) {
+function addTooltipAndPoints(container, chartGroup, data, valueScale, utilityType) {
   const tooltip = d3
     .select(container)
     .append('div')
@@ -129,7 +134,7 @@ function addTooltipAndPoints(container, g, data, valueScale, utilityType) {
     .style('pointer-events', 'none')
     .style('opacity', 0);
 
-  const pointsGroup = g.append('g');
+  const pointsGroup = chartGroup.append('g');
 
   data.forEach((d, i) => {
     const pos = spiralPath(d.month, d[utilityType], valueScale);
@@ -178,8 +183,8 @@ function addTooltipAndPoints(container, g, data, valueScale, utilityType) {
 
 function createSvgWithGroup(width, height) {
   const svg = d3.create('svg').attr('width', width).attr('height', height).attr('viewBox', [0, 0, width, height]);
-  const g = svg.append('g').attr('transform', `translate(${width / 2},${height / 2})`);
-  return { g, svg };
+  const chartGroup = svg.append('g').attr('transform', `translate(${width / 2},${height / 2})`);
+  return { chartGroup, svg };
 }
 
 export function createUtilityChart(utilities, utilityType = 'gas') {
@@ -199,7 +204,7 @@ export function createUtilityChart(utilities, utilityType = 'gas') {
   const width = utilityChart.clientWidth || 600;
   const height = Math.min(width, 600);
 
-  const { g, svg } = createSvgWithGroup(width, height);
+  const { chartGroup, svg } = createSvgWithGroup(width, height);
 
   const maxValue = Math.max(...data.map((d) => d[utilityType]));
   const maxRadius = Math.min(width, height) / 2 - CHART_MARGIN;
@@ -208,10 +213,10 @@ export function createUtilityChart(utilities, utilityType = 'gas') {
     .domain([0, maxValue])
     .range([maxRadius * VALUE_SCALE_MIN, maxRadius * VALUE_SCALE_MAX]);
 
-  drawPolarGridLines(g, maxValue, valueScale);
-  drawMonthSpokes(g, maxValue, valueScale);
-  drawSpiralPath(svg, g, data, valueScale, utilityType);
-  addTooltipAndPoints(utilityChart, g, data, valueScale, utilityType);
+  drawPolarGridLines(chartGroup, maxValue, valueScale);
+  drawMonthSpokes(chartGroup, maxValue, valueScale);
+  drawSpiralPath(svg, chartGroup, data, valueScale, utilityType);
+  addTooltipAndPoints(utilityChart, chartGroup, data, valueScale, utilityType);
 
   utilityChart.appendChild(svg.node());
 }
