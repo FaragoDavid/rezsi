@@ -9,7 +9,7 @@ export function renderApp() {
   if (!container) return;
 
   // Set document title
-  document.title = strings.app.title;
+  document.title = strings.title;
 
   // Render app structure with strings embedded
   container.innerHTML = loginTemplate(strings) + dashboardTemplate();

@@ -1,10 +1,7 @@
 export const strings = {
-  app: {
-    title: 'Rezsi',
-  },
+  title: 'Rezsi',
   login: {
-    heading: 'Rezsi',
-    signInButton: 'Bejelentkezés Google-lal',
+    signInButton: 'Google Bejelentkezés',
   },
   dashboard: {
     heading: 'Havi Fogyasztás',
@@ -14,24 +11,18 @@ export const strings = {
     noDataMessage: 'Nincs elérhető adat',
     errorMessage: 'Hiba az adatok betöltése során. Kérjük, próbáld újra.',
   },
-  table: {
-    headers: {
-      date: 'Dátum',
-      water: 'Víz',
-      gas: 'Gáz',
-      electricity: 'Villany',
-      electricityMain: 'Villany (fő)',
-    },
-  },
+  tableDateHeader: 'Dátum',
   utilities: {
-    gas: 'Gáz',
     water: 'Víz',
+    gas: 'Gáz',
     electricity: 'Villany',
+    electricityMain: 'Villany (fő)',
   },
   units: {
-    gas: 'm³',
     water: 'm³',
+    gas: 'm³',
     electricity: 'kWh',
+    electricityMain: 'kWh',
   },
   months: ['Jan', 'Feb', 'Már', 'Ápr', 'Máj', 'Jún', 'Júl', 'Aug', 'Szep', 'Okt', 'Nov', 'Dec'],
 };

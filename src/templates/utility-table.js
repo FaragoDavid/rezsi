@@ -4,11 +4,11 @@ export const utilityTableTemplate = (strings) => `
   <table id="utility-table">
       <thead>
         <tr>
-          <th>${strings.table.headers.date}</th>
-          <th>${strings.table.headers.water}</th>
-          <th>${strings.table.headers.gas}</th>
-          <th>${strings.table.headers.electricity}</th>
-          <th>${strings.table.headers.electricityMain}</th>
+          <th>${strings.tableDateHeader}</th>
+          <th>${strings.utilities.water}</th>
+          <th>${strings.utilities.gas}</th>
+          <th>${strings.utilities.electricity}</th>
+          <th>${strings.utilities.electricityMain}</th>
         </tr>
       </thead>
       <tbody id="utility-data">

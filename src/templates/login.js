@@ -1,7 +1,7 @@
 export const loginTemplate = (strings) => `
 <div id="login-section" class="section">
   <div class="card">
-    <h1>${strings.login.heading}</h1>
+    <h1>${strings.title}</h1>
     <button id="google-signin-button" class="btn google-btn">
       <svg width="18" height="18" viewBox="0 0 18 18" style="margin-right: 8px">
         <path

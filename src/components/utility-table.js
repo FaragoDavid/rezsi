@@ -2,13 +2,6 @@ import { strings } from '../i18n/strings.js';
 import { getColorForValue, calculateRange } from '../utils/bg-gradient-calculator.js';
 import { formatUtilityValue } from '../utils/format-value.js';
 
-const UNITS = {
-  water: 'm3',
-  gas: 'm3',
-  electricity: 'kWh',
-  electricityMain: 'kWh',
-};
-
 export function buildUtilityTable(increments) {
   if (!increments || increments.length === 0) {
     return `<tr><td colspan="5">${strings.dashboard.noDataMessage}</td></tr>`;
@@ -35,10 +28,10 @@ export function buildUtilityTable(increments) {
         ${dividerRow}
         <tr>
           <td>${dateStr}</td>
-          <td style="${waterStyle}">${isNaN(water) ? '' : `${formatUtilityValue(water, 'water')} ${UNITS.water}`}</td>
-          <td style="${gasStyle}">${isNaN(gas) ? '' : `${formatUtilityValue(gas, 'gas')} ${UNITS.gas}`}</td>
-          <td style="${electricityStyle}">${isNaN(electricity) ? '' : `${formatUtilityValue(electricity, 'electricity')} ${UNITS.electricity}`}</td>
-          <td style="${electricityMainStyle}">${isNaN(electricityMain) ? '' : `${formatUtilityValue(electricityMain, 'electricityMain')} ${UNITS.electricityMain}`}</td>
+          <td style="${waterStyle}">${isNaN(water) ? '' : `${formatUtilityValue(water, 'water')} ${strings.units.water}`}</td>
+          <td style="${gasStyle}">${isNaN(gas) ? '' : `${formatUtilityValue(gas, 'gas')} ${strings.units.gas}`}</td>
+          <td style="${electricityStyle}">${isNaN(electricity) ? '' : `${formatUtilityValue(electricity, 'electricity')} ${strings.units.electricity}`}</td>
+          <td style="${electricityMainStyle}">${isNaN(electricityMain) ? '' : `${formatUtilityValue(electricityMain, 'electricityMain')} ${strings.units.electricityMain}`}</td>
         </tr>
       `;
     })
