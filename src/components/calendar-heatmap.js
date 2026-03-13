@@ -2,15 +2,20 @@ import { strings } from '../i18n/strings.js';
 import { getSelectedUtility } from '../utils/storage.js';
 import { formatUtilityValue } from '../utils/format-value.js';
 import { getColorByIntensity } from '../utils/color.js';
+import { NARROW_SCREEN_BREAKPOINT, NO_DATA_PADDING, renderNoDataMessage, createResponsiveSvg } from '../utils/chart-utils.js';
 
 const CELL_GAP = 2;
 const CELL_SIZE = 50;
 const MIN_CELL_SIZE = 30;
+const MIN_CELL_SIZE_NARROW = 20;
 const MONTH_LABEL_HEIGHT = 30;
+const MONTH_LABEL_Y = 20;
 const MONTHS_PER_YEAR = 12;
 const TOOLTIP_X_OFFSET = 15;
 const TOOLTIP_Y_OFFSET = -10;
 const YEAR_LABEL_WIDTH = 40;
+const DEFAULT_CONTAINER_WIDTH = 700;
+const FONT_SIZE = '12px';
 
 export function createCalendarHeatmap(utilities, utilityType = getSelectedUtility()) {
   const dataPoints = utilities.filter((d) => d[utilityType] != null && !isNaN(d[utilityType]) && d.year && d.month);
@@ -18,22 +23,19 @@ export function createCalendarHeatmap(utilities, utilityType = getSelectedUtilit
   const calendarHeatmapHtml = document.getElementById('calendar-heatmap');
   calendarHeatmapHtml.innerHTML = '';
   if (dataPoints.length === 0) {
-    calendarHeatmapHtml.innerHTML = '<p style="text-align: center; padding: 40px;">No data available</p>';
+    renderNoDataMessage(calendarHeatmapHtml);
     return;
   }
 
   const years = [...new Set(dataPoints.map((d) => d.year))].sort();
 
-  const containerWidth = calendarHeatmapHtml.clientWidth || 700;
-  const cellSize = Math.max(
-    MIN_CELL_SIZE,
-    Math.min(CELL_SIZE, Math.floor((containerWidth - YEAR_LABEL_WIDTH) / MONTHS_PER_YEAR) - CELL_GAP),
-  );
+  const containerWidth = calendarHeatmapHtml.clientWidth || DEFAULT_CONTAINER_WIDTH;
+  const minCellSize = containerWidth < NARROW_SCREEN_BREAKPOINT ? MIN_CELL_SIZE_NARROW : MIN_CELL_SIZE;
+  const cellSize = Math.max(minCellSize, Math.min(CELL_SIZE, Math.floor((containerWidth - YEAR_LABEL_WIDTH) / MONTHS_PER_YEAR) - CELL_GAP));
 
-  const { chartGroup, svg } = createSvgWithGroup(
-    MONTH_LABEL_HEIGHT + years.length * (cellSize + CELL_GAP),
-    YEAR_LABEL_WIDTH + MONTHS_PER_YEAR * (cellSize + CELL_GAP),
-  );
+  const width = YEAR_LABEL_WIDTH + MONTHS_PER_YEAR * (cellSize + CELL_GAP);
+  const height = MONTH_LABEL_HEIGHT + years.length * (cellSize + CELL_GAP);
+  const { chartGroup, svg } = createResponsiveSvg(width, height);
 
   drawMonthLabels(chartGroup, cellSize);
   drawYearLabels(years, chartGroup, cellSize);
@@ -60,7 +62,7 @@ function addTooltip(dataPoints, years, utilityType, chartGroup, cellSize, calend
     .style('color', 'white')
     .style('padding', '8px 12px')
     .style('border-radius', '4px')
-    .style('font-size', '12px')
+    .style('font-size', FONT_SIZE)
     .style('pointer-events', 'none')
     .style('opacity', 0);
 
@@ -118,7 +120,7 @@ function drawYearLabels(years, chartGroup, cellSize) {
       .attr('x', YEAR_LABEL_WIDTH - 5)
       .attr('y', MONTH_LABEL_HEIGHT + yearIdx * (cellSize + CELL_GAP) + cellSize / 2 + 5)
       .attr('text-anchor', 'end')
-      .attr('font-size', '12px')
+      .attr('font-size', FONT_SIZE)
       .attr('fill', '#666')
       .text(year);
   }
@@ -129,22 +131,10 @@ function drawMonthLabels(chartGroup, cellSize) {
     chartGroup
       .append('text')
       .attr('x', YEAR_LABEL_WIDTH + monthIdx * (cellSize + CELL_GAP) + cellSize / 2)
-      .attr('y', 20)
+      .attr('y', MONTH_LABEL_Y)
       .attr('text-anchor', 'middle')
-      .attr('font-size', '12px')
+      .attr('font-size', FONT_SIZE)
       .attr('fill', '#666')
       .text(strings.months[monthIdx]);
   }
-}
-
-function createSvgWithGroup(height, width) {
-  const svg = d3
-    .create('svg')
-    .attr('width', '100%')
-    .attr('height', height)
-    .attr('viewBox', [0, 0, width, height])
-    .attr('preserveAspectRatio', 'xMidYMid meet');
-
-  const chartGroup = svg.append('g');
-  return { chartGroup, svg };
 }

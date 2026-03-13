@@ -232,15 +232,10 @@ p {
 
 .charts-container {
   position: relative;
-  min-height: 600px;
 }
 
 #spiral-chart,
 #calendar-heatmap {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
   background: white;
   border-radius: 8px;
 }

@@ -2,6 +2,7 @@ import { strings } from '../i18n/strings.js';
 import { getSelectedUtility } from '../utils/storage.js';
 import { formatUtilityValue } from '../utils/format-value.js';
 import { getColorByIntensity } from '../utils/color.js';
+import { NARROW_SCREEN_BREAKPOINT, renderNoDataMessage, createResponsiveSvg } from '../utils/chart-utils.js';
 
 const CHART_MARGIN = 0;
 const VALUE_SCALE_MIN = 0.15;
@@ -20,6 +21,9 @@ const HOVER_STROKE_WIDTH = 2;
 const TOOLTIP_X_OFFSET = 15;
 const TOOLTIP_Y_OFFSET = -10;
 const DATA_POINT_HOVER_AREA = 8;
+const DEFAULT_WIDTH = 600;
+const DEFAULT_MAX_HEIGHT = 600;
+const NARROW_MAX_HEIGHT = 400;
 
 function spiralPath(month, value, valueScale) {
   const angle = ((month - 1) / MONTHS_PER_YEAR) * 2 * Math.PI;
@@ -176,17 +180,6 @@ function addTooltipAndPoints(utilityChartHtml, chartGroup, dataPoints, valueScal
   });
 }
 
-function createSvgWithGroup(width, height) {
-  const svg = d3
-    .create('svg')
-    .attr('width', '100%')
-    .attr('height', height)
-    .attr('viewBox', [0, 0, width, height])
-    .attr('preserveAspectRatio', 'xMidYMid meet');
-  const chartGroup = svg.append('g').attr('transform', `translate(${width / 2},${height / 2})`);
-  return { chartGroup, svg };
-}
-
 export function createSpiralChart(utilities, utilityType = getSelectedUtility()) {
   const dataPoints = utilities
     .filter((d) => d[utilityType] != null && !isNaN(d[utilityType]) && d.year && d.month)
@@ -195,14 +188,15 @@ export function createSpiralChart(utilities, utilityType = getSelectedUtility())
   const utilityChartHtml = document.getElementById('spiral-chart');
   utilityChartHtml.innerHTML = '';
   if (dataPoints.length === 0) {
-    utilityChartHtml.innerHTML = '<p style="text-align: center; padding: 40px;">No data available</p>';
+    renderNoDataMessage(utilityChartHtml);
     return;
   }
 
-  const width = utilityChartHtml.clientWidth || 600;
-  const height = Math.min(width, 600);
+  const width = utilityChartHtml.clientWidth || DEFAULT_WIDTH;
+  const maxHeight = width < NARROW_SCREEN_BREAKPOINT ? NARROW_MAX_HEIGHT : DEFAULT_MAX_HEIGHT;
+  const height = Math.min(width, maxHeight);
 
-  const { chartGroup, svg } = createSvgWithGroup(width, height);
+  const { chartGroup, svg } = createResponsiveSvg(width, height, `translate(${width / 2},${height / 2})`);
 
   const maxValue = Math.max(...dataPoints.map((d) => d[utilityType]));
   const maxRadius = Math.min(width, height) / 2 - CHART_MARGIN;
