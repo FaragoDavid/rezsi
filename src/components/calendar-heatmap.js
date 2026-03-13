@@ -3,81 +3,55 @@ import { getSelectedUtility } from '../utils/storage.js';
 import { formatUtilityValue } from '../utils/format-value.js';
 import { getColorByIntensity } from '../utils/color.js';
 
-const CELL_SIZE = 50;
 const CELL_GAP = 2;
-const YEAR_LABEL_WIDTH = 40;
+const CELL_SIZE = 50;
+const MIN_CELL_SIZE = 30;
 const MONTH_LABEL_HEIGHT = 30;
+const MONTHS_PER_YEAR = 12;
 const TOOLTIP_X_OFFSET = 15;
 const TOOLTIP_Y_OFFSET = -10;
+const YEAR_LABEL_WIDTH = 40;
 
 export function createCalendarHeatmap(utilities, utilityType = getSelectedUtility()) {
-  const container = document.getElementById('calendar-heatmap');
-  if (!container) return;
+  const dataPoints = utilities.filter((d) => d[utilityType] != null && !isNaN(d[utilityType]) && d.year && d.month);
 
-  container.innerHTML = '';
-
-  const data = utilities
-    .map((d) => ({
-      year: d.year,
-      month: d.month,
-      value: d[utilityType],
-    }))
-    .filter((d) => d.value != null && !isNaN(d.value) && d.year && d.month);
-
-  if (data.length === 0) {
-    container.innerHTML = '<p style="text-align: center; padding: 40px;">No data available</p>';
+  const calendarHeatmapHtml = document.getElementById('calendar-heatmap');
+  calendarHeatmapHtml.innerHTML = '';
+  if (dataPoints.length === 0) {
+    calendarHeatmapHtml.innerHTML = '<p style="text-align: center; padding: 40px;">No data available</p>';
     return;
   }
 
-  const years = [...new Set(data.map((d) => d.year))].sort();
-  const maxValue = d3.max(data, (d) => d.value);
+  const years = [...new Set(dataPoints.map((d) => d.year))].sort();
+
+  const containerWidth = calendarHeatmapHtml.clientWidth || 700;
+  const cellSize = Math.max(
+    MIN_CELL_SIZE,
+    Math.min(CELL_SIZE, Math.floor((containerWidth - YEAR_LABEL_WIDTH) / MONTHS_PER_YEAR) - CELL_GAP),
+  );
+
+  const { chartGroup, svg } = createSvgWithGroup(
+    MONTH_LABEL_HEIGHT + years.length * (cellSize + CELL_GAP),
+    YEAR_LABEL_WIDTH + MONTHS_PER_YEAR * (cellSize + CELL_GAP),
+  );
+
+  drawMonthLabels(chartGroup, cellSize);
+  drawYearLabels(years, chartGroup, cellSize);
+  addTooltip(dataPoints, years, utilityType, chartGroup, cellSize, calendarHeatmapHtml);
+
+  calendarHeatmapHtml.appendChild(svg.node());
+}
+
+function addTooltip(dataPoints, years, utilityType, chartGroup, cellSize, calendarHeatmapHtml) {
+  const maxValue = d3.max(dataPoints, (d) => d[utilityType]);
 
   const dataMap = new Map();
-  data.forEach((d) => {
-    dataMap.set(`${d.year}-${d.month}`, d.value);
+  dataPoints.forEach((dataPoint) => {
+    dataMap.set(`${dataPoint.year}-${dataPoint.month}`, dataPoint[utilityType]);
   });
 
-  const containerWidth = container.clientWidth || 700;
-  const availableWidth = containerWidth - 40;
-  const calculatedCellSize = Math.min(CELL_SIZE, Math.floor((availableWidth - YEAR_LABEL_WIDTH) / strings.months.length) - CELL_GAP);
-  const cellSize = Math.max(30, calculatedCellSize);
-
-  const width = YEAR_LABEL_WIDTH + strings.months.length * (cellSize + CELL_GAP);
-  const height = MONTH_LABEL_HEIGHT + years.length * (cellSize + CELL_GAP);
-
-  const svg = d3
-    .create('svg')
-    .attr('width', '100%')
-    .attr('height', height)
-    .attr('viewBox', [0, 0, width, height])
-    .attr('preserveAspectRatio', 'xMidYMid meet');
-
-  const g = svg.append('g');
-
-  for (let monthIdx = 0; monthIdx < strings.months.length; monthIdx++) {
-    g.append('text')
-      .attr('x', YEAR_LABEL_WIDTH + monthIdx * (cellSize + CELL_GAP) + cellSize / 2)
-      .attr('y', 20)
-      .attr('text-anchor', 'middle')
-      .attr('font-size', '12px')
-      .attr('fill', '#666')
-      .text(strings.months[monthIdx]);
-  }
-
-  for (let yearIdx = 0; yearIdx < years.length; yearIdx++) {
-    const year = years[yearIdx];
-
-    g.append('text')
-      .attr('x', YEAR_LABEL_WIDTH - 5)
-      .attr('y', MONTH_LABEL_HEIGHT + yearIdx * (cellSize + CELL_GAP) + cellSize / 2 + 5)
-      .attr('text-anchor', 'end')
-      .attr('font-size', '12px')
-      .attr('fill', '#666')
-      .text(year);
-  }
-
   const tooltip = d3
-    .select(container)
+    .select(calendarHeatmapHtml)
     .append('div')
     .style('position', 'absolute')
     .style('background', 'rgba(0, 0, 0, 0.8)')
@@ -91,13 +65,13 @@ export function createCalendarHeatmap(utilities, utilityType = getSelectedUtilit
   for (let yearIdx = 0; yearIdx < years.length; yearIdx++) {
     const year = years[yearIdx];
 
-    for (let monthIdx = 0; monthIdx < strings.months.length; monthIdx++) {
+    for (let monthIdx = 0; monthIdx < MONTHS_PER_YEAR; monthIdx++) {
       const month = monthIdx + 1;
       const value = dataMap.get(`${year}-${month}`);
       const x = YEAR_LABEL_WIDTH + monthIdx * (cellSize + CELL_GAP);
       const y = MONTH_LABEL_HEIGHT + yearIdx * (cellSize + CELL_GAP);
 
-      const rect = g
+      const rect = chartGroup
         .append('rect')
         .attr('x', x)
         .attr('y', y)
@@ -119,7 +93,7 @@ export function createCalendarHeatmap(utilities, utilityType = getSelectedUtilit
               );
           })
           .on('mousemove', function (event) {
-            const rect = container.getBoundingClientRect();
+            const rect = calendarHeatmapHtml.getBoundingClientRect();
             tooltip
               .style('left', event.clientX - rect.left + TOOLTIP_X_OFFSET + 'px')
               .style('top', event.clientY - rect.top + TOOLTIP_Y_OFFSET + 'px');
@@ -131,6 +105,44 @@ export function createCalendarHeatmap(utilities, utilityType = getSelectedUtilit
       }
     }
   }
+}
 
-  container.appendChild(svg.node());
+function drawYearLabels(years, chartGroup, cellSize) {
+  for (let yearIdx = 0; yearIdx < years.length; yearIdx++) {
+    const year = years[yearIdx];
+
+    chartGroup
+      .append('text')
+      .attr('x', YEAR_LABEL_WIDTH - 5)
+      .attr('y', MONTH_LABEL_HEIGHT + yearIdx * (cellSize + CELL_GAP) + cellSize / 2 + 5)
+      .attr('text-anchor', 'end')
+      .attr('font-size', '12px')
+      .attr('fill', '#666')
+      .text(year);
+  }
+}
+
+function drawMonthLabels(chartGroup, cellSize) {
+  for (let monthIdx = 0; monthIdx < MONTHS_PER_YEAR; monthIdx++) {
+    chartGroup
+      .append('text')
+      .attr('x', YEAR_LABEL_WIDTH + monthIdx * (cellSize + CELL_GAP) + cellSize / 2)
+      .attr('y', 20)
+      .attr('text-anchor', 'middle')
+      .attr('font-size', '12px')
+      .attr('fill', '#666')
+      .text(strings.months[monthIdx]);
+  }
+}
+
+function createSvgWithGroup(height, width) {
+  const svg = d3
+    .create('svg')
+    .attr('width', '100%')
+    .attr('height', height)
+    .attr('viewBox', [0, 0, width, height])
+    .attr('preserveAspectRatio', 'xMidYMid meet');
+
+  const chartGroup = svg.append('g');
+  return { chartGroup, svg };
 }
