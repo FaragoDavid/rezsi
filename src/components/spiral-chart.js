@@ -177,7 +177,12 @@ function addTooltipAndPoints(utilityChartHtml, chartGroup, dataPoints, valueScal
 }
 
 function createSvgWithGroup(width, height) {
-  const svg = d3.create('svg').attr('width', width).attr('height', height).attr('viewBox', [0, 0, width, height]);
+  const svg = d3
+    .create('svg')
+    .attr('width', '100%')
+    .attr('height', height)
+    .attr('viewBox', [0, 0, width, height])
+    .attr('preserveAspectRatio', 'xMidYMid meet');
   const chartGroup = svg.append('g').attr('transform', `translate(${width / 2},${height / 2})`);
   return { chartGroup, svg };
 }
