@@ -82,9 +82,9 @@ function addTooltip(dataPoints, years, utilityType, chartGroup, cellSize, calend
         .attr('fill', getColorByIntensity(valueRange > 0 ? (value - minValue) / valueRange : 0))
         .attr('stroke', '#ddd')
         .attr('stroke-width', 1)
-        .style('cursor', value ? 'pointer' : 'default');
+        .style('cursor', value != null ? 'pointer' : 'default');
 
-      if (value) {
+      if (value != null) {
         rect
           .on('mouseenter', function () {
             d3.select(this).attr('stroke', '#333').attr('stroke-width', 2);
