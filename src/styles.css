@@ -127,12 +127,14 @@ p {
   grid-template-columns: 1fr 1fr;
   gap: 20px;
   align-items: start;
+  justify-items: center;
   width: 100%;
 }
 
 .card {
   min-width: 0;
   max-width: 800px;
+  width: 100%;
   overflow: hidden;
 }
 
