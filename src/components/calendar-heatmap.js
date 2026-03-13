@@ -15,7 +15,9 @@ const TOOLTIP_X_OFFSET = 15;
 const TOOLTIP_Y_OFFSET = -10;
 const YEAR_LABEL_WIDTH = 40;
 const DEFAULT_CONTAINER_WIDTH = 700;
-const FONT_SIZE = '12px';
+const BASE_FONT_SIZE = 12;
+const MIN_FONT_SIZE = 8;
+const FONT_SIZE_SCALE = 0.24;
 
 export function createCalendarHeatmap(utilities, utilityType = getSelectedUtility()) {
   const dataPoints = utilities.filter((d) => d[utilityType] != null && !isNaN(d[utilityType]) && d.year && d.month);
@@ -32,13 +34,14 @@ export function createCalendarHeatmap(utilities, utilityType = getSelectedUtilit
   const containerWidth = calendarHeatmapHtml.clientWidth || DEFAULT_CONTAINER_WIDTH;
   const minCellSize = containerWidth < NARROW_SCREEN_BREAKPOINT ? MIN_CELL_SIZE_NARROW : MIN_CELL_SIZE;
   const cellSize = Math.max(minCellSize, Math.min(CELL_SIZE, Math.floor((containerWidth - YEAR_LABEL_WIDTH) / MONTHS_PER_YEAR) - CELL_GAP));
+  const fontSize = Math.max(MIN_FONT_SIZE, Math.min(BASE_FONT_SIZE, cellSize * FONT_SIZE_SCALE));
 
   const width = YEAR_LABEL_WIDTH + MONTHS_PER_YEAR * (cellSize + CELL_GAP);
   const height = MONTH_LABEL_HEIGHT + years.length * (cellSize + CELL_GAP);
   const { chartGroup, svg } = createResponsiveSvg(width, height);
 
-  drawMonthLabels(chartGroup, cellSize);
-  drawYearLabels(years, chartGroup, cellSize);
+  drawMonthLabels(chartGroup, cellSize, fontSize);
+  drawYearLabels(years, chartGroup, cellSize, fontSize);
   addTooltip(dataPoints, years, utilityType, chartGroup, cellSize, calendarHeatmapHtml);
 
   calendarHeatmapHtml.appendChild(svg.node());
@@ -62,7 +65,7 @@ function addTooltip(dataPoints, years, utilityType, chartGroup, cellSize, calend
     .style('color', 'white')
     .style('padding', '8px 12px')
     .style('border-radius', '4px')
-    .style('font-size', FONT_SIZE)
+    .style('font-size', `${BASE_FONT_SIZE}px`)
     .style('pointer-events', 'none')
     .style('opacity', 0);
 
@@ -111,7 +114,7 @@ function addTooltip(dataPoints, years, utilityType, chartGroup, cellSize, calend
   }
 }
 
-function drawYearLabels(years, chartGroup, cellSize) {
+function drawYearLabels(years, chartGroup, cellSize, fontSize) {
   for (let yearIdx = 0; yearIdx < years.length; yearIdx++) {
     const year = years[yearIdx];
 
@@ -120,20 +123,20 @@ function drawYearLabels(years, chartGroup, cellSize) {
       .attr('x', YEAR_LABEL_WIDTH - 5)
       .attr('y', MONTH_LABEL_HEIGHT + yearIdx * (cellSize + CELL_GAP) + cellSize / 2 + 5)
       .attr('text-anchor', 'end')
-      .attr('font-size', FONT_SIZE)
+      .attr('font-size', `${fontSize}px`)
       .attr('fill', '#666')
       .text(year);
   }
 }
 
-function drawMonthLabels(chartGroup, cellSize) {
+function drawMonthLabels(chartGroup, cellSize, fontSize) {
   for (let monthIdx = 0; monthIdx < MONTHS_PER_YEAR; monthIdx++) {
     chartGroup
       .append('text')
       .attr('x', YEAR_LABEL_WIDTH + monthIdx * (cellSize + CELL_GAP) + cellSize / 2)
       .attr('y', MONTH_LABEL_Y)
       .attr('text-anchor', 'middle')
-      .attr('font-size', FONT_SIZE)
+      .attr('font-size', `${fontSize}px`)
       .attr('fill', '#666')
       .text(strings.months[monthIdx]);
   }
