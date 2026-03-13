@@ -306,6 +306,11 @@ p {
   text-align: right;
 }
 
+.estimated {
+  font-style: italic;
+  opacity: 0.7;
+}
+
 @media (max-width: 1200px) {
   .cards-container {
     grid-template-columns: 1fr;

@@ -133,12 +133,14 @@ function addTooltipAndPoints(utilityChartHtml, chartGroup, dataPoints, valueScal
 
   const minDate = dataPoints[0].year * 12 + dataPoints[0].month;
   const maxDate = dataPoints[dataPoints.length - 1].year * 12 + dataPoints[dataPoints.length - 1].month;
+  const estimatedKey = `${utilityType}Estimated`;
 
   dataPoints.forEach((dataPoint) => {
     const pos = spiralPath(dataPoint.month, dataPoint[utilityType], valueScale);
     if (isNaN(pos.x) || isNaN(pos.y)) return;
 
     const currentDate = dataPoint.year * 12 + dataPoint.month;
+    const isEstimated = dataPoint[estimatedKey];
     const pointGroup = pointsGroup.append('g');
 
     pointGroup
@@ -154,7 +156,7 @@ function addTooltipAndPoints(utilityChartHtml, chartGroup, dataPoints, valueScal
       .attr('cx', pos.x)
       .attr('cy', pos.y)
       .attr('r', 0)
-      .attr('fill', getColorByIntensity((currentDate - minDate) / (maxDate - minDate)))
+      .attr('fill', getColorByIntensity((currentDate - minDate) / (maxDate - minDate), isEstimated))
       .attr('stroke', '#fff')
       .attr('stroke-width', 0)
       .style('pointer-events', 'none');
@@ -162,10 +164,11 @@ function addTooltipAndPoints(utilityChartHtml, chartGroup, dataPoints, valueScal
     pointGroup
       .on('mouseenter', function () {
         visiblePoint.attr('r', HOVER_POINT_RADIUS).attr('stroke-width', HOVER_STROKE_WIDTH);
+        const prefix = isEstimated ? '≈ ' : '';
         tooltip
           .style('opacity', 1)
           .html(
-            `<strong>${strings.months[dataPoint.month - 1]} ${dataPoint.year}</strong><br>${formatUtilityValue(dataPoint[utilityType], utilityType)} ${strings.units[utilityType]}`,
+            `<strong>${strings.months[dataPoint.month - 1]} ${dataPoint.year}</strong><br>${prefix}${formatUtilityValue(dataPoint[utilityType], utilityType)} ${strings.units[utilityType]}`,
           );
       })
       .on('mousemove', function (event) {

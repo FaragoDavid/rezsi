@@ -53,8 +53,12 @@ function addTooltip(dataPoints, years, utilityType, chartGroup, cellSize, calend
   const valueRange = maxValue - minValue;
 
   const dataMap = new Map();
+  const estimatedKey = `${utilityType}Estimated`;
   dataPoints.forEach((dataPoint) => {
-    dataMap.set(`${dataPoint.year}-${dataPoint.month}`, dataPoint[utilityType]);
+    dataMap.set(`${dataPoint.year}-${dataPoint.month}`, {
+      value: dataPoint[utilityType],
+      isEstimated: dataPoint[estimatedKey],
+    });
   });
 
   const tooltip = d3
@@ -74,7 +78,9 @@ function addTooltip(dataPoints, years, utilityType, chartGroup, cellSize, calend
 
     for (let monthIdx = 0; monthIdx < MONTHS_PER_YEAR; monthIdx++) {
       const month = monthIdx + 1;
-      const value = dataMap.get(`${year}-${month}`);
+      const data = dataMap.get(`${year}-${month}`);
+      const value = data?.value;
+      const isEstimated = data?.isEstimated;
       const x = YEAR_LABEL_WIDTH + monthIdx * (cellSize + CELL_GAP);
       const y = MONTH_LABEL_HEIGHT + yearIdx * (cellSize + CELL_GAP);
 
@@ -84,7 +90,7 @@ function addTooltip(dataPoints, years, utilityType, chartGroup, cellSize, calend
         .attr('y', y)
         .attr('width', cellSize)
         .attr('height', cellSize)
-        .attr('fill', getColorByIntensity(valueRange > 0 ? (value - minValue) / valueRange : 0))
+        .attr('fill', getColorByIntensity(valueRange > 0 ? (value - minValue) / valueRange : 0, isEstimated))
         .attr('stroke', '#ddd')
         .attr('stroke-width', 1)
         .style('cursor', value != null ? 'pointer' : 'default');
@@ -93,10 +99,11 @@ function addTooltip(dataPoints, years, utilityType, chartGroup, cellSize, calend
         rect
           .on('mouseenter', function () {
             d3.select(this).attr('stroke', '#333').attr('stroke-width', 2);
+            const prefix = isEstimated ? '≈ ' : '';
             tooltip
               .style('opacity', 1)
               .html(
-                `<strong>${strings.months[monthIdx]} ${year}</strong><br>${formatUtilityValue(value, utilityType)} ${strings.units[utilityType]}`,
+                `<strong>${strings.months[monthIdx]} ${year}</strong><br>${prefix}${formatUtilityValue(value, utilityType)} ${strings.units[utilityType]}`,
               );
           })
           .on('mousemove', function (event) {
