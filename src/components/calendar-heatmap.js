@@ -43,7 +43,9 @@ export function createCalendarHeatmap(utilities, utilityType = getSelectedUtilit
 }
 
 function addTooltip(dataPoints, years, utilityType, chartGroup, cellSize, calendarHeatmapHtml) {
+  const minValue = d3.min(dataPoints, (d) => d[utilityType]);
   const maxValue = d3.max(dataPoints, (d) => d[utilityType]);
+  const valueRange = maxValue - minValue;
 
   const dataMap = new Map();
   dataPoints.forEach((dataPoint) => {
@@ -77,7 +79,7 @@ function addTooltip(dataPoints, years, utilityType, chartGroup, cellSize, calend
         .attr('y', y)
         .attr('width', cellSize)
         .attr('height', cellSize)
-        .attr('fill', getColorByIntensity(value / maxValue))
+        .attr('fill', getColorByIntensity(valueRange > 0 ? (value - minValue) / valueRange : 0))
         .attr('stroke', '#ddd')
         .attr('stroke-width', 1)
         .style('cursor', value ? 'pointer' : 'default');
