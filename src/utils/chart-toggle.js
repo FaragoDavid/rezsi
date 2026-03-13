@@ -3,7 +3,7 @@ import { getSelectedChartType, setSelectedChartType } from './storage.js';
 export function initializeChartTypeToggle() {
   const buttons = document.querySelectorAll('.chart-type-btn');
   const heatmapContainer = document.getElementById('calendar-heatmap');
-  const spiralContainer = document.getElementById('utility-chart');
+  const spiralContainer = document.getElementById('spiral-chart');
   const selectedChartType = getSelectedChartType();
 
   buttons.forEach((button) => {

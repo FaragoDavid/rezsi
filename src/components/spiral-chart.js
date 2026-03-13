@@ -185,12 +185,12 @@ function createSvgWithGroup(width, height) {
   return { chartGroup, svg };
 }
 
-export function createUtilityChart(utilities, utilityType = getSelectedUtility()) {
+export function createSpiralChart(utilities, utilityType = getSelectedUtility()) {
   const data = utilities
     .filter((d) => d[utilityType] != null && !isNaN(d[utilityType]) && d.year && d.month)
     .sort((a, b) => a.year - b.year || a.month - b.month);
 
-  const utilityChart = document.getElementById('utility-chart');
+  const utilityChart = document.getElementById('spiral-chart');
   utilityChart.innerHTML = '';
   if (data.length === 0) {
     utilityChart.innerHTML = '<p style="text-align: center; padding: 40px;">No data available</p>';

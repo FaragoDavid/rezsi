@@ -1,6 +1,6 @@
 import { loadUtilityData } from '../data/index.js';
 import { buildUtilityTable } from './utility-table.js';
-import { createUtilityChart } from './utility-chart.js';
+import { createSpiralChart } from './spiral-chart.js';
 import { createCalendarHeatmap } from './calendar-heatmap.js';
 import { initializeChartTypeToggle } from '../utils/chart-toggle.js';
 import { initializeUtilityToggle, registerChartCreator } from '../utils/unified-utility-toggle.js';
@@ -23,10 +23,10 @@ async function renderUtilityData() {
     const increments = await loadUtilityData();
     tbody.innerHTML = buildUtilityTable(increments);
 
-    createUtilityChart(increments);
+    createSpiralChart(increments);
     createCalendarHeatmap(increments);
 
-    registerChartCreator('spiral', (utilityType) => createUtilityChart(increments, utilityType));
+    registerChartCreator('spiral', (utilityType) => createSpiralChart(increments, utilityType));
     registerChartCreator('heatmap', (utilityType) => createCalendarHeatmap(increments, utilityType));
 
     initializeUtilityToggle();

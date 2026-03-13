@@ -6,7 +6,7 @@ export const chartsCardTemplate = (strings) => `
   <div class="card-header">${chartTypeToggleTemplate(strings)}${utilityToggleTemplate(strings, 'utility-btn')}
   </div>
   <div class="charts-container">
-    <div id="utility-chart"></div>
+    <div id="spiral-chart"></div>
     <div id="calendar-heatmap"></div>
   </div>
 </div>

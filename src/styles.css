@@ -217,7 +217,7 @@ p {
   min-height: 600px;
 }
 
-#utility-chart,
+#spiral-chart,
 #calendar-heatmap {
   position: absolute;
   top: 0;
