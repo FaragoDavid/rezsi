@@ -1,6 +1,7 @@
 import { strings } from '../i18n/strings.js';
 import { getSelectedUtility } from '../utils/storage.js';
 import { formatUtilityValue } from '../utils/format-value.js';
+import { getColorByIntensity } from '../utils/color.js';
 
 const CHART_MARGIN = 0;
 const VALUE_SCALE_MIN = 0.15;
@@ -19,13 +20,6 @@ const HOVER_STROKE_WIDTH = 2;
 const TOOLTIP_X_OFFSET = 15;
 const TOOLTIP_Y_OFFSET = -10;
 const DATA_POINT_HOVER_AREA = 8;
-
-function getBluePurpleColor(t) {
-  const hue = 250;
-  const saturation = 70;
-  const lightness = 90 - t * 50;
-  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-}
 
 function spiralPath(month, value, valueScale) {
   const angle = ((month - 1) / MONTHS_PER_YEAR) * 2 * Math.PI;
@@ -111,7 +105,7 @@ function drawSpiralPath(chartGroup, data, valueScale, utilityType) {
       .attr('y1', pos1.y)
       .attr('x2', pos2.x)
       .attr('y2', pos2.y)
-      .attr('stroke', getBluePurpleColor(t))
+      .attr('stroke', getColorByIntensity(t))
       .attr('stroke-width', LINE_STROKE_WIDTH)
       .attr('stroke-linecap', 'round');
   }
@@ -158,7 +152,7 @@ function addTooltipAndPoints(container, chartGroup, data, valueScale, utilityTyp
       .attr('cx', pos.x)
       .attr('cy', pos.y)
       .attr('r', 0)
-      .attr('fill', getBluePurpleColor(t))
+      .attr('fill', getColorByIntensity(t))
       .attr('stroke', '#fff')
       .attr('stroke-width', 0)
       .style('pointer-events', 'none');

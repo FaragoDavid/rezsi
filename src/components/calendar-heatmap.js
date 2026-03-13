@@ -1,6 +1,7 @@
 import { strings } from '../i18n/strings.js';
 import { getSelectedUtility } from '../utils/storage.js';
 import { formatUtilityValue } from '../utils/format-value.js';
+import { getColorByIntensity } from '../utils/color.js';
 
 const CELL_SIZE = 50;
 const CELL_GAP = 2;
@@ -8,15 +9,6 @@ const YEAR_LABEL_WIDTH = 40;
 const MONTH_LABEL_HEIGHT = 30;
 const TOOLTIP_X_OFFSET = 15;
 const TOOLTIP_Y_OFFSET = -10;
-
-function getColorScale(value, maxValue) {
-  if (!value || value === 0) return '#f0f0f0';
-  const intensity = value / maxValue;
-  const hue = 250;
-  const saturation = 70;
-  const lightness = 90 - intensity * 50;
-  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-}
 
 export function createCalendarHeatmap(utilities, utilityType = getSelectedUtility()) {
   const container = document.getElementById('calendar-heatmap');
@@ -111,7 +103,7 @@ export function createCalendarHeatmap(utilities, utilityType = getSelectedUtilit
         .attr('y', y)
         .attr('width', cellSize)
         .attr('height', cellSize)
-        .attr('fill', getColorScale(value, maxValue))
+        .attr('fill', getColorByIntensity(value / maxValue))
         .attr('stroke', '#ddd')
         .attr('stroke-width', 1)
         .style('cursor', value ? 'pointer' : 'default');
