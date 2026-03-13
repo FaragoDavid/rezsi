@@ -24,6 +24,7 @@ const DATA_POINT_HOVER_AREA = 8;
 const DEFAULT_WIDTH = 600;
 const DEFAULT_MAX_HEIGHT = 600;
 const NARROW_MAX_HEIGHT = 400;
+const CHART_GUIDELINE_STROKE_COLOR = '#bbb';
 
 function spiralPath(month, value, valueScale) {
   const angle = ((month - 1) / MONTHS_PER_YEAR) * 2 * Math.PI;
@@ -46,7 +47,7 @@ function drawPolarGridLines(chartGroup, maxValue, valueScale) {
       .attr('cy', 0)
       .attr('r', radius)
       .attr('fill', 'none')
-      .attr('stroke', '#e0e0e0')
+      .attr('stroke', CHART_GUIDELINE_STROKE_COLOR)
       .attr('stroke-width', 1)
       .attr('stroke-dasharray', i === VALUE_CIRCLE_COUNT ? 'none' : '2,4');
 
@@ -56,7 +57,7 @@ function drawPolarGridLines(chartGroup, maxValue, valueScale) {
         .attr('x', VALUE_LABEL_X_OFFSET)
         .attr('y', -radius + VALUE_LABEL_Y_OFFSET)
         .attr('font-size', `${VALUE_LABEL_FONT_SIZE}px`)
-        .attr('fill', '#999')
+        .attr('fill', CHART_GUIDELINE_STROKE_COLOR)
         .text(Math.round(value));
     }
   }
@@ -74,7 +75,7 @@ function drawMonthSpokes(chartGroup, maxValue, valueScale) {
       .attr('y1', 0)
       .attr('x2', outerRadius * Math.cos(angle))
       .attr('y2', outerRadius * Math.sin(angle))
-      .attr('stroke', '#e8e8e8')
+      .attr('stroke', CHART_GUIDELINE_STROKE_COLOR)
       .attr('stroke-width', 0.5);
 
     chartGroup
@@ -82,7 +83,7 @@ function drawMonthSpokes(chartGroup, maxValue, valueScale) {
       .attr('x', (outerRadius + MONTH_LABEL_OFFSET) * Math.cos(angle))
       .attr('y', (outerRadius + MONTH_LABEL_OFFSET) * Math.sin(angle) + MONTH_LABEL_Y_OFFSET)
       .attr('font-size', `${MONTH_LABEL_FONT_SIZE}px`)
-      .attr('fill', '#666')
+      .attr('fill', CHART_GUIDELINE_STROKE_COLOR)
       .attr('text-anchor', 'middle')
       .text(strings.months[month]);
   }
