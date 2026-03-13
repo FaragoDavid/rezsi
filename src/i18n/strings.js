@@ -5,8 +5,8 @@ export const strings = {
   },
   dashboard: {
     heading: 'Havi Fogyasztás',
-    calendarHeatmap: 'Naptár Hőtérkép',
-    utilityChartTitle: 'Fogyasztás Évek Szerint',
+    calendarHeatmapTitle: 'Naptár Hőtérkép',
+    spiralChartTitle: 'Spirál Diagram',
     loadingMessage: 'Adatok betöltése...',
     noDataMessage: 'Nincs elérhető adat',
     errorMessage: 'Hiba az adatok betöltése során. Kérjük, próbáld újra.',
@@ -24,5 +24,5 @@ export const strings = {
     electricity: 'kWh',
     electricityMain: 'kWh',
   },
-  months: ['Jan', 'Feb', 'Már', 'Ápr', 'Máj', 'Jún', 'Júl', 'Aug', 'Szep', 'Okt', 'Nov', 'Dec'],
+  months: Array.from({ length: 12 }, (_, i) => new Date(2000, i, 1).toLocaleString('hu-HU', { month: 'short' })),
 };
