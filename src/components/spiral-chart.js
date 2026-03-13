@@ -84,14 +84,14 @@ function drawMonthSpokes(chartGroup, maxValue, valueScale) {
   }
 }
 
-function drawSpiralPath(chartGroup, data, valueScale, utilityType) {
-  const minDate = data[0].year * 12 + data[0].month;
-  const maxDate = data[data.length - 1].year * 12 + data[data.length - 1].month;
+function drawSpiralPath(chartGroup, dataPoints, valueScale, utilityType) {
+  const minDate = dataPoints[0].year * 12 + dataPoints[0].month;
+  const maxDate = dataPoints[dataPoints.length - 1].year * 12 + dataPoints[dataPoints.length - 1].month;
   const dateRange = maxDate - minDate;
 
-  for (let i = 0; i < data.length - 1; i++) {
-    const d1 = data[i];
-    const d2 = data[i + 1];
+  for (let i = 0; i < dataPoints.length - 1; i++) {
+    const d1 = dataPoints[i];
+    const d2 = dataPoints[i + 1];
 
     const pos1 = spiralPath(d1.month, d1[utilityType], valueScale);
     const pos2 = spiralPath(d2.month, d2[utilityType], valueScale);
@@ -111,9 +111,9 @@ function drawSpiralPath(chartGroup, data, valueScale, utilityType) {
   }
 }
 
-function addTooltipAndPoints(container, chartGroup, data, valueScale, utilityType) {
+function addTooltipAndPoints(utilityChartHtml, chartGroup, dataPoints, valueScale, utilityType) {
   const tooltip = d3
-    .select(container)
+    .select(utilityChartHtml)
     .append('div')
     .style('position', 'absolute')
     .style('background', 'rgba(0, 0, 0, 0.8)')
@@ -126,17 +126,14 @@ function addTooltipAndPoints(container, chartGroup, data, valueScale, utilityTyp
 
   const pointsGroup = chartGroup.append('g');
 
-  const minDate = data[0].year * 12 + data[0].month;
-  const maxDate = data[data.length - 1].year * 12 + data[data.length - 1].month;
-  const dateRange = maxDate - minDate;
+  const minDate = dataPoints[0].year * 12 + dataPoints[0].month;
+  const maxDate = dataPoints[dataPoints.length - 1].year * 12 + dataPoints[dataPoints.length - 1].month;
 
-  data.forEach((d, i) => {
-    const pos = spiralPath(d.month, d[utilityType], valueScale);
+  dataPoints.forEach((dataPoint) => {
+    const pos = spiralPath(dataPoint.month, dataPoint[utilityType], valueScale);
     if (isNaN(pos.x) || isNaN(pos.y)) return;
 
-    const currentDate = d.year * 12 + d.month;
-    const t = dateRange > 0 ? (currentDate - minDate) / dateRange : 0;
-
+    const currentDate = dataPoint.year * 12 + dataPoint.month;
     const pointGroup = pointsGroup.append('g');
 
     pointGroup
@@ -152,7 +149,7 @@ function addTooltipAndPoints(container, chartGroup, data, valueScale, utilityTyp
       .attr('cx', pos.x)
       .attr('cy', pos.y)
       .attr('r', 0)
-      .attr('fill', getColorByIntensity(t))
+      .attr('fill', getColorByIntensity((currentDate - minDate) / (maxDate - minDate)))
       .attr('stroke', '#fff')
       .attr('stroke-width', 0)
       .style('pointer-events', 'none');
@@ -163,11 +160,11 @@ function addTooltipAndPoints(container, chartGroup, data, valueScale, utilityTyp
         tooltip
           .style('opacity', 1)
           .html(
-            `<strong>${strings.months[d.month - 1]} ${d.year}</strong><br>${formatUtilityValue(d[utilityType], utilityType)} ${strings.units[utilityType]}`,
+            `<strong>${strings.months[dataPoint.month - 1]} ${dataPoint.year}</strong><br>${formatUtilityValue(dataPoint[utilityType], utilityType)} ${strings.units[utilityType]}`,
           );
       })
       .on('mousemove', function (event) {
-        const rect = container.getBoundingClientRect();
+        const rect = utilityChartHtml.getBoundingClientRect();
         tooltip
           .style('left', event.clientX - rect.left + TOOLTIP_X_OFFSET + 'px')
           .style('top', event.clientY - rect.top + TOOLTIP_Y_OFFSET + 'px');
@@ -186,23 +183,23 @@ function createSvgWithGroup(width, height) {
 }
 
 export function createSpiralChart(utilities, utilityType = getSelectedUtility()) {
-  const data = utilities
+  const dataPoints = utilities
     .filter((d) => d[utilityType] != null && !isNaN(d[utilityType]) && d.year && d.month)
     .sort((a, b) => a.year - b.year || a.month - b.month);
 
-  const utilityChart = document.getElementById('spiral-chart');
-  utilityChart.innerHTML = '';
-  if (data.length === 0) {
-    utilityChart.innerHTML = '<p style="text-align: center; padding: 40px;">No data available</p>';
+  const utilityChartHtml = document.getElementById('spiral-chart');
+  utilityChartHtml.innerHTML = '';
+  if (dataPoints.length === 0) {
+    utilityChartHtml.innerHTML = '<p style="text-align: center; padding: 40px;">No data available</p>';
     return;
   }
 
-  const width = utilityChart.clientWidth || 600;
+  const width = utilityChartHtml.clientWidth || 600;
   const height = Math.min(width, 600);
 
   const { chartGroup, svg } = createSvgWithGroup(width, height);
 
-  const maxValue = Math.max(...data.map((d) => d[utilityType]));
+  const maxValue = Math.max(...dataPoints.map((d) => d[utilityType]));
   const maxRadius = Math.min(width, height) / 2 - CHART_MARGIN;
   const valueScale = d3
     .scaleLinear()
@@ -211,8 +208,8 @@ export function createSpiralChart(utilities, utilityType = getSelectedUtility())
 
   drawPolarGridLines(chartGroup, maxValue, valueScale);
   drawMonthSpokes(chartGroup, maxValue, valueScale);
-  drawSpiralPath(chartGroup, data, valueScale, utilityType);
-  addTooltipAndPoints(utilityChart, chartGroup, data, valueScale, utilityType);
+  drawSpiralPath(chartGroup, dataPoints, valueScale, utilityType);
+  addTooltipAndPoints(utilityChartHtml, chartGroup, dataPoints, valueScale, utilityType);
 
-  utilityChart.appendChild(svg.node());
+  utilityChartHtml.appendChild(svg.node());
 }
