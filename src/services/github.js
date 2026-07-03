@@ -9,8 +9,8 @@ export async function readData() {
     if (stored) return stored;
   }
 
-  const base = import.meta.env.BASE_URL;
-  const res = await fetch(`${base}data.csv`);
+  const apiBase = `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`;
+  const res = await fetch(apiBase, { headers: { Accept: 'application/vnd.github.raw+json' } });
   if (!res.ok) throw new Error(`Failed to fetch data.csv: ${res.status}`);
   return res.text();
 }

@@ -9,7 +9,7 @@ export function parseCSV(csv) {
     const record = {};
     headers.forEach((header, index) => {
       const value = values[index];
-      record[header] = isNaN(value) ? value : parseFloat(value);
+      record[header] = value === '' || value == null ? null : isNaN(value) ? value : parseFloat(value);
     });
     return record;
   });
