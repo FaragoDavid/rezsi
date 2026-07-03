@@ -1,5 +1,5 @@
 const TOKEN = import.meta.env.VITE_GITHUB_TOKEN;
-const REPO = 'david-farago/rezsi';
+const REPO = 'FaragoDavid/rezsi';
 const FILE_PATH = 'public/data.csv';
 const STORAGE_KEY = 'rezsi_data_csv';
 
