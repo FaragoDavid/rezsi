@@ -311,6 +311,137 @@ p {
   opacity: 0.7;
 }
 
+.table-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.table-card-header h2 {
+  margin-bottom: 0;
+}
+
+.add-entry-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.add-entry-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: white;
+}
+
+#add-entry-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  border: none;
+  border-radius: 16px;
+  padding: 28px;
+  width: min(480px, 90vw);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+#add-entry-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+#add-entry-dialog h2 {
+  font-size: 20px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+}
+
+.form-group input,
+.form-group select {
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  background: white;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.15);
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.form-actions button[type='button'] {
+  padding: 10px 20px;
+  background: white;
+  color: #666;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.form-actions button[type='submit'] {
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.form-actions button[type='submit']:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form-status {
+  font-size: 13px;
+}
+
+.form-status.error {
+  color: #c62828;
+}
+
 @media (max-width: 1200px) {
   .cards-container {
     grid-template-columns: 1fr;

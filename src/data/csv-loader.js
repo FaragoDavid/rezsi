@@ -1,9 +1,11 @@
-function parseCSV(csv) {
-  const lines = csv.trim().split("\n");
-  const headers = lines[0].split(",");
+import { readData } from '../services/github.js';
+
+export function parseCSV(csv) {
+  const lines = csv.trim().split('\n');
+  const headers = lines[0].split(',');
 
   return lines.slice(1).map((line) => {
-    const values = line.split(",");
+    const values = line.split(',');
     const record = {};
     headers.forEach((header, index) => {
       const value = values[index];
@@ -13,12 +15,13 @@ function parseCSV(csv) {
   });
 }
 
+export function serializeCSV(records) {
+  const headers = ['year', 'month', 'water', 'gas', 'electricity', 'electricity_main'];
+  const rows = records.map((r) => headers.map((h) => (r[h] != null && r[h] !== '' ? r[h] : '')).join(','));
+  return [headers.join(','), ...rows].join('\n') + '\n';
+}
+
 export async function fetchUtilityData() {
-  const basePath = import.meta.env.BASE_URL || "/";
-  const response = await fetch(`${basePath}data.csv`);
-  if (!response.ok) {
-    throw new Error("Failed to load data");
-  }
-  const csvText = await response.text();
+  const csvText = await readData();
   return parseCSV(csvText);
 }

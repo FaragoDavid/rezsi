@@ -1,6 +1,9 @@
 export const utilityTableTemplate = (strings) => `
 <div class="card">
-  <h2>${strings.dashboard.heading}</h2>
+  <div class="table-card-header">
+    <h2>${strings.dashboard.heading}</h2>
+    <button id="add-entry-open" class="add-entry-btn" aria-label="${strings.addEntry.heading}"><i data-lucide="plus"></i></button>
+  </div>
   <div class="table-container">
     <table id="utility-table">
         <thead>

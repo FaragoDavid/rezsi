@@ -25,4 +25,14 @@ export const strings = {
     electricityMain: 'kWh',
   },
   months: Array.from({ length: 12 }, (_, i) => new Date(2000, i, 1).toLocaleString('hu-HU', { month: 'short' })),
+  addEntry: {
+    heading: 'Új Bejegyzés',
+    year: 'Év',
+    month: 'Hónap',
+    save: 'Mentés',
+    cancel: 'Mégse',
+    saving: 'Mentés...',
+    saved: 'Mentve!',
+    error: 'Hiba a mentés során.',
+  },
 };

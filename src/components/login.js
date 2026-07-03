@@ -4,6 +4,7 @@ import { createSpiralChart } from './spiral-chart.js';
 import { createCalendarHeatmap } from './calendar-heatmap.js';
 import { initializeChartTypeToggle } from '../utils/chart-toggle.js';
 import { initializeUtilityToggle, registerChartCreator } from '../utils/unified-utility-toggle.js';
+import { initializeAddEntryForm } from './add-entry-form.js';
 import { strings } from '../i18n/strings.js';
 
 export function showUserSection() {
@@ -31,6 +32,7 @@ async function renderUtilityData() {
 
     initializeUtilityToggle();
     initializeChartTypeToggle();
+    initializeAddEntryForm(renderUtilityData);
   } catch (error) {
     console.error('Error loading utility data:', error);
     tbody.innerHTML = `<tr><td colspan="5">${strings.dashboard.errorMessage}</td></tr>`;
